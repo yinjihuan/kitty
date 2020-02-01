@@ -108,9 +108,9 @@ public class ReflectiveFeign extends Feign {
             } else if ("toString".equals(method.getName())) {
                 return toString();
             }
-            String loggerName = method.getDeclaringClass().getSimpleName()+"."+method.getName();
+            String name = method.getDeclaringClass().getSimpleName()+"."+method.getName();
             String type = CatConstantsExt.Type_Call;
-            Transaction transaction = Cat.newTransaction(type,loggerName);
+            Transaction transaction = Cat.newTransaction(type, name);
             String apiUri = getApiUri(method.getDeclaringClass(), method);
             transaction.addData("URI", apiUri);
             transaction.addData("Params", Arrays.asList(args).stream().map(a -> a.toString()).collect(Collectors.joining(",")));

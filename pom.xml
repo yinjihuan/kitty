@@ -16,6 +16,7 @@
         <module>kitty-db</module>
         <module>kitty-config</module>
         <module>kitty-spring-cloud-starter</module>
+        <module>kitty-common</module>
     </modules>
 
     <properties>
