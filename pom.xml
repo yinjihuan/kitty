@@ -15,6 +15,7 @@
         <module>kitty-servicecall</module>
         <module>kitty-db</module>
         <module>kitty-config</module>
+        <module>kitty-spring-cloud-starter</module>
     </modules>
 
     <properties>
