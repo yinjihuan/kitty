@@ -1,0 +1,2 @@
+catTransaction=com.cxytiandi.servicecall.dubbo.dubboclub.CatTransaction
+appnameAppend=com.cxytiandi.servicecall.dubbo.dubboclub.AppNameAppendFilter
