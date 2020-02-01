@@ -4,20 +4,20 @@ package com.cxytiandi.servicecall.dubbo.dubboclub.constants;
  */
 public class CatConstants {
 
-    public static final String CROSS_CONSUMER ="PigeonCall";
+    public static final String CROSS_CONSUMER ="RpcCall";
 
-    public static final String CROSS_SERVER = "PigeonService";
+    public static final String CROSS_SERVER = "RpcService";
 
     public static final String PROVIDER_APPLICATION_NAME="serverApplicationName";
 
-    public static final String CONSUMER_CALL_SERVER="PigeonCall.server";
+    public static final String CONSUMER_CALL_SERVER="RpcCall.server";
 
-    public static final String CONSUMER_CALL_APP="PigeonCall.app";
+    public static final String CONSUMER_CALL_APP="RpcCall.app";
 
-    public static final String CONSUMER_CALL_PORT="PigeonCall.port";
+    public static final String CONSUMER_CALL_PORT="RpcCall.port";
 
-    public static final String PROVIDER_CALL_SERVER="PigeonService.client";
+    public static final String PROVIDER_CALL_SERVER="RpcService.client";
 
-    public static final String PROVIDER_CALL_APP="PigeonService.app";
+    public static final String PROVIDER_CALL_APP="RpcService.app";
 
 }
