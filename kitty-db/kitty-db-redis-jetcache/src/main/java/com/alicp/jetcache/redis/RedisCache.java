@@ -3,9 +3,6 @@ package com.alicp.jetcache.redis;
 import com.alicp.jetcache.*;
 import com.alicp.jetcache.external.AbstractExternalCache;
 import com.cxytiandi.kitty.common.cat.CatTransactionManager;
-import com.dianping.cat.Cat;
-import com.dianping.cat.message.Message;
-import com.dianping.cat.message.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import redis.clients.jedis.*;
@@ -16,6 +13,7 @@ import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * Created on 2016/10/7.
@@ -32,6 +30,11 @@ public class RedisCache<K, V> extends AbstractExternalCache<K, V> {
     Function<byte[], Object> valueDecoder;
 
     private static ThreadLocalRandom random = ThreadLocalRandom.current();
+
+    private String CACHE_PUT = "CachePut";
+    private String CACHE_GET = "CacheGet";
+    private String CACHE_PUT_IF_ABSENT = "PutIfAbsent";
+    private String CACHE_REMOVE = "PutIfAbsent";
 
     public RedisCache(RedisCacheConfig<K, V> config) {
         super(config);
@@ -112,7 +115,6 @@ public class RedisCache<K, V> extends AbstractExternalCache<K, V> {
         try (Jedis jedis = getReadPool().getResource()) {
             byte[] newKey = buildKey(key);
             String name = "Redis_" + new String(newKey);
-            String type = "CacheGet";
 
             return CatTransactionManager.newTransaction(() -> {
                 byte[] bytes = jedis.get(newKey);
@@ -125,7 +127,7 @@ public class RedisCache<K, V> extends AbstractExternalCache<K, V> {
                 } else {
                     return CacheGetResult.NOT_EXISTS_WITHOUT_MSG;
                 }
-            }, type, name);
+            }, CACHE_GET, name);
 
         } catch (Exception ex) {
             logError("GET", key, ex);
@@ -142,26 +144,31 @@ public class RedisCache<K, V> extends AbstractExternalCache<K, V> {
             ArrayList<K> keyList = new ArrayList<K>(keys);
             byte[][] newKeys = keyList.stream().map((k) -> buildKey(k)).toArray(byte[][]::new);
 
-            Map<K, CacheGetResult<V>> resultMap = new HashMap<>();
-            if (newKeys.length > 0) {
-                List mgetResults = jedis.mget(newKeys);
-                for (int i = 0; i < mgetResults.size(); i++) {
-                    Object value = mgetResults.get(i);
-                    K key = keyList.get(i);
-                    if (value != null) {
-                        CacheValueHolder<V> holder = (CacheValueHolder<V>) valueDecoder.apply((byte[]) value);
-                        if (System.currentTimeMillis() >= holder.getExpireTime()) {
-                            resultMap.put(key, CacheGetResult.EXPIRED_WITHOUT_MSG);
+            String name = "Redis_" + new String(keyList.stream().map((k) -> new String(buildKey(k))).collect(Collectors.joining(",")));
+
+            return CatTransactionManager.newTransaction(() -> {
+                Map<K, CacheGetResult<V>> resultMap = new HashMap<>();
+                if (newKeys.length > 0) {
+                    List mgetResults = jedis.mget(newKeys);
+                    for (int i = 0; i < mgetResults.size(); i++) {
+                        Object value = mgetResults.get(i);
+                        K key = keyList.get(i);
+                        if (value != null) {
+                            CacheValueHolder<V> holder = (CacheValueHolder<V>) valueDecoder.apply((byte[]) value);
+                            if (System.currentTimeMillis() >= holder.getExpireTime()) {
+                                resultMap.put(key, CacheGetResult.EXPIRED_WITHOUT_MSG);
+                            } else {
+                                CacheGetResult<V> r = new CacheGetResult<V>(CacheResultCode.SUCCESS, null, holder);
+                                resultMap.put(key, r);
+                            }
                         } else {
-                            CacheGetResult<V> r = new CacheGetResult<V>(CacheResultCode.SUCCESS, null, holder);
-                            resultMap.put(key, r);
+                            resultMap.put(key, CacheGetResult.NOT_EXISTS_WITHOUT_MSG);
                         }
-                    } else {
-                        resultMap.put(key, CacheGetResult.NOT_EXISTS_WITHOUT_MSG);
                     }
                 }
-            }
-            return new MultiGetResult<K, V>(CacheResultCode.SUCCESS, null, resultMap);
+                return new MultiGetResult<K, V>(CacheResultCode.SUCCESS, null, resultMap);
+            }, CACHE_GET, name);
+
         } catch (Exception ex) {
             logError("GET_ALL", "keys(" + keys.size() + ")", ex);
             return new MultiGetResult<K, V>(ex);
@@ -178,7 +185,6 @@ public class RedisCache<K, V> extends AbstractExternalCache<K, V> {
             CacheValueHolder<V> holder = new CacheValueHolder(value, timeUnit.toMillis(expireAfterWrite));
             byte[] newKey = buildKey(key);
             String name = "Redis_" + new String(newKey);
-            String type = "CachePut";
 
             return CatTransactionManager.newTransaction(() -> {
                 String rt = jedis.psetex(newKey, timeUnit.toMillis(expireAfterWrite), valueEncoder.apply(holder));
@@ -187,7 +193,7 @@ public class RedisCache<K, V> extends AbstractExternalCache<K, V> {
                 } else {
                     return new CacheResult(CacheResultCode.FAIL, rt);
                 }
-            }, type, name);
+            }, CACHE_PUT, name);
 
         } catch (Exception ex) {
             logError("PUT", key, ex);
@@ -200,27 +206,31 @@ public class RedisCache<K, V> extends AbstractExternalCache<K, V> {
         if (map == null) {
             return CacheResult.FAIL_ILLEGAL_ARGUMENT;
         }
+        String name = "Redis_" + new String(map.entrySet().stream().map(e -> new String(buildKey(e.getKey()))).collect(Collectors.joining(",")));
         try (Jedis jedis = config.getJedisPool().getResource()) {
-            int failCount = 0;
-            List<Response<String>> responses = new ArrayList<>();
-            Pipeline p = jedis.pipelined();
-            for (Map.Entry<? extends K, ? extends V> en : map.entrySet()) {
-                CacheValueHolder<V> holder = new CacheValueHolder(en.getValue(), timeUnit.toMillis(expireAfterWrite));
-                Response<String> resp = p.psetex(buildKey(en.getKey()), timeUnit.toMillis(expireAfterWrite), valueEncoder.apply(holder));
-                responses.add(resp);
-            }
-            p.sync();
-            for (Response<String> resp : responses) {
-                if(!"OK".equals(resp.get())){
-                    failCount++;
+            return CatTransactionManager.newTransaction(() -> {
+                int failCount = 0;
+                List<Response<String>> responses = new ArrayList<>();
+                Pipeline p = jedis.pipelined();
+                for (Map.Entry<? extends K, ? extends V> en : map.entrySet()) {
+                    CacheValueHolder<V> holder = new CacheValueHolder(en.getValue(), timeUnit.toMillis(expireAfterWrite));
+                    Response<String> resp = p.psetex(buildKey(en.getKey()), timeUnit.toMillis(expireAfterWrite), valueEncoder.apply(holder));
+                    responses.add(resp);
                 }
-            }
-            return failCount == 0 ? CacheResult.SUCCESS_WITHOUT_MSG :
-                    failCount == map.size() ? CacheResult.FAIL_WITHOUT_MSG : CacheResult.PART_SUCCESS_WITHOUT_MSG;
+                p.sync();
+                for (Response<String> resp : responses) {
+                    if(!"OK".equals(resp.get())){
+                        failCount++;
+                    }
+                }
+                return failCount == 0 ? CacheResult.SUCCESS_WITHOUT_MSG :
+                        failCount == map.size() ? CacheResult.FAIL_WITHOUT_MSG : CacheResult.PART_SUCCESS_WITHOUT_MSG;
+            }, CACHE_PUT, name);
         } catch (Exception ex) {
             logError("PUT_ALL", "map(" + map.size() + ")", ex);
             return new CacheResult(ex);
         }
+
     }
 
     @Override
@@ -229,20 +239,24 @@ public class RedisCache<K, V> extends AbstractExternalCache<K, V> {
             return CacheResult.FAIL_ILLEGAL_ARGUMENT;
         }
         return REMOVE_impl(key, buildKey(key));
+
     }
 
     private CacheResult REMOVE_impl(Object key, byte[] newKey) {
+        String name = "Redis_" + new String(newKey);
         try (Jedis jedis = config.getJedisPool().getResource()) {
-            Long rt = jedis.del(newKey);
-            if (rt == null) {
-                return CacheResult.FAIL_WITHOUT_MSG;
-            } else if (rt == 1) {
-                return CacheResult.SUCCESS_WITHOUT_MSG;
-            } else if (rt == 0) {
-                return new CacheResult(CacheResultCode.NOT_EXISTS, null);
-            } else {
-                return CacheResult.FAIL_WITHOUT_MSG;
-            }
+            return CatTransactionManager.newTransaction(() -> {
+                Long rt = jedis.del(newKey);
+                if (rt == null) {
+                    return CacheResult.FAIL_WITHOUT_MSG;
+                } else if (rt == 1) {
+                    return CacheResult.SUCCESS_WITHOUT_MSG;
+                } else if (rt == 0) {
+                    return new CacheResult(CacheResultCode.NOT_EXISTS, null);
+                } else {
+                    return CacheResult.FAIL_WITHOUT_MSG;
+                }
+            }, CACHE_REMOVE, name);
         } catch (Exception ex) {
             logError("REMOVE", key, ex);
             return new CacheResult(ex);
@@ -254,10 +268,14 @@ public class RedisCache<K, V> extends AbstractExternalCache<K, V> {
         if (keys == null) {
             return CacheResult.FAIL_ILLEGAL_ARGUMENT;
         }
+        String name = "Redis_" + new String(keys.stream().map(e -> new String(buildKey(e))).collect(Collectors.joining(",")));
         try (Jedis jedis = config.getJedisPool().getResource()) {
-            byte[][] newKeys = keys.stream().map((k) -> buildKey(k)).toArray((len) -> new byte[keys.size()][]);
-            jedis.del(newKeys);
-            return CacheResult.SUCCESS_WITHOUT_MSG;
+            return CatTransactionManager.newTransaction(() -> {
+                byte[][] newKeys = keys.stream().map((k) -> buildKey(k)).toArray((len) -> new byte[keys.size()][]);
+                jedis.del(newKeys);
+                return CacheResult.SUCCESS_WITHOUT_MSG;
+            }, CACHE_REMOVE, name);
+
         } catch (Exception ex) {
             logError("REMOVE_ALL", "keys(" + keys.size() + ")", ex);
             return new CacheResult(ex);
@@ -269,17 +287,23 @@ public class RedisCache<K, V> extends AbstractExternalCache<K, V> {
         if (key == null) {
             return CacheResult.FAIL_ILLEGAL_ARGUMENT;
         }
+
         try (Jedis jedis = config.getJedisPool().getResource()) {
             CacheValueHolder<V> holder = new CacheValueHolder(value, timeUnit.toMillis(expireAfterWrite));
             byte[] newKey = buildKey(key);
-            String rt = jedis.set(newKey, valueEncoder.apply(holder), "NX".getBytes(), "PX".getBytes(), timeUnit.toMillis(expireAfterWrite));
-            if ("OK".equals(rt)) {
-                return CacheResult.SUCCESS_WITHOUT_MSG;
-            } else if (rt == null) {
-                return CacheResult.EXISTS_WITHOUT_MSG;
-            } else {
-                return new CacheResult(CacheResultCode.FAIL, rt);
-            }
+
+            String name = "Redis_" + new String(newKey);
+            return CatTransactionManager.newTransaction(() -> {
+                String rt = jedis.set(newKey, valueEncoder.apply(holder), "NX".getBytes(), "PX".getBytes(), timeUnit.toMillis(expireAfterWrite));
+                if ("OK".equals(rt)) {
+                    return CacheResult.SUCCESS_WITHOUT_MSG;
+                } else if (rt == null) {
+                    return CacheResult.EXISTS_WITHOUT_MSG;
+                } else {
+                    return new CacheResult(CacheResultCode.FAIL, rt);
+                }
+            }, CACHE_PUT_IF_ABSENT, name);
+
         } catch (Exception ex) {
             logError("PUT_IF_ABSENT", key, ex);
             return new CacheResult(ex);
