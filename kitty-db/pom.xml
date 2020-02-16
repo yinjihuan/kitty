@@ -14,6 +14,7 @@
     <modules>
         <module>kitty-db-mysql-mybatis</module>
         <module>kitty-db-redis-jetcache</module>
+        <module>kitty-db-mongodb-spring</module>
     </modules>
 
     <dependencies>

@@ -13,6 +13,13 @@
     <packaging>pom</packaging>
     <modules>
         <module>kitty-spring-cloud-starter-cat</module>
+        <module>kitty-spring-cloud-starter-web</module>
+        <module>kitty-spring-cloud-starter-mongodb</module>
+        <module>kitty-spring-cloud-starter-mybatis</module>
+        <module>kitty-spring-cloud-starter-jetcache</module>
+        <module>kitty-spring-cloud-starter-nacos</module>
+        <module>kitty-spring-cloud-starter-dubbo</module>
+        <module>kitty-spring-cloud-starter-feign</module>
     </modules>
 
 
