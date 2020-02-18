@@ -1,10 +1,12 @@
-package com.cxytiandi.kitty.db.mysql.mybatis;
+package com.cxytiandi.kitty.mybatis;
 
 import com.baomidou.mybatisplus.autoconfigure.ConfigurationCustomizer;
 import com.baomidou.mybatisplus.core.MybatisConfiguration;
+import com.cxytiandi.kitty.db.mysql.mybatis.CatMybatisInterceptor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
 /**
  * MyBatis配置
  *

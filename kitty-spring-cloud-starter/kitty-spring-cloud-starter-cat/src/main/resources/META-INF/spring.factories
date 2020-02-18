@@ -1,2 +1,2 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-com.cxytiandi.cat.autoconfigure.CatClientAutoConfiguration
+com.cxytiandi.kitty.cat.autoconfigure.CatClientAutoConfiguration

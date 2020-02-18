@@ -11,5 +11,11 @@
 
     <artifactId>kitty-spring-cloud-starter-dubbo</artifactId>
 
-
+    <dependencies>
+        <dependency>
+            <groupId>com.cxytiandi</groupId>
+            <artifactId>kitty-servicecall-dubbo</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+    </dependencies>
 </project>

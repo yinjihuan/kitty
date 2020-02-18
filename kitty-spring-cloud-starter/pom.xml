@@ -20,6 +20,7 @@
         <module>kitty-spring-cloud-starter-nacos</module>
         <module>kitty-spring-cloud-starter-dubbo</module>
         <module>kitty-spring-cloud-starter-feign</module>
+        <module>kitty-spring-cloud-starter-gateway-zuul</module>
     </modules>
 
 

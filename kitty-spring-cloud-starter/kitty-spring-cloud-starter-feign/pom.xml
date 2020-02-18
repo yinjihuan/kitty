@@ -11,5 +11,12 @@
 
     <artifactId>kitty-spring-cloud-starter-feign</artifactId>
 
+    <dependencies>
+        <dependency>
+            <groupId>com.cxytiandi</groupId>
+            <artifactId>kitty-servicecall-feign</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+    </dependencies>
 
 </project>

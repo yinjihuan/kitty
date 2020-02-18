@@ -1,5 +1,6 @@
 package com.cxytiandi.kitty.web.config;
 
+import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
 
@@ -13,6 +14,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupp
  * @作者介绍 http://cxytiandi.com/about
  * @时间 2020-02-16 19:31
  */
+@Configuration
 public class WebAppConfigurer extends WebMvcConfigurationSupport {
 
     @Override

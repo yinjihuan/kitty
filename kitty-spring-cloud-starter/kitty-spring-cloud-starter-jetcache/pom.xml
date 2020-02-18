@@ -11,5 +11,11 @@
 
     <artifactId>kitty-spring-cloud-starter-jetcache</artifactId>
 
-
+    <dependencies>
+        <dependency>
+            <groupId>com.cxytiandi</groupId>
+            <artifactId>kitty-db-redis-jetcache</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+    </dependencies>
 </project>

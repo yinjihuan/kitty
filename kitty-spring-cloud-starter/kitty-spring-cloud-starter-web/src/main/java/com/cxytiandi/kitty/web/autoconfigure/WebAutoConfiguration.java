@@ -1,6 +1,6 @@
 package com.cxytiandi.kitty.web.autoconfigure;
 
-import com.cxytiandi.kitty.web.config.WebAppConfigurer;
+import com.cxytiandi.kitty.cat.web.CatServerFilter;
 import com.dianping.cat.servlet.CatFilter;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
@@ -26,21 +26,12 @@ public class WebAutoConfiguration {
     @Bean
     public FilterRegistrationBean catFilter() {
         FilterRegistrationBean registration = new FilterRegistrationBean();
-        CatFilter filter = new CatFilter();
+        CatServerFilter filter = new CatServerFilter();
         registration.setFilter(filter);
         registration.addUrlPatterns("/*");
         registration.setName("cat-filter");
         registration.setOrder(1);
         return registration;
-    }
-
-    /**
-     * Web配置
-     * @return
-     */
-    @Bean
-    public WebAppConfigurer webAppConfigurer() {
-        return new WebAppConfigurer();
     }
 
 }
