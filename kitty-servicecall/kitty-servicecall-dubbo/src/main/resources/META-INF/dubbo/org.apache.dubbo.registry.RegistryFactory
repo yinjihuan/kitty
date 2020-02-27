@@ -1,1 +1,1 @@
-catRegistryFactoryWrapper=com.cxytiandi.servicecall.dubbo.dubboclub.registry.CatRegistryFactoryWrapper
+catRegistryFactoryWrapper=com.cxytiandi.kitty.servicecall.dubbo.registry.CatRegistryFactoryWrapper

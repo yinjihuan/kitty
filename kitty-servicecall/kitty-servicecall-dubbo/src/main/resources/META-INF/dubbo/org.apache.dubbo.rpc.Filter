@@ -1,2 +1,2 @@
-catTransaction=com.cxytiandi.servicecall.dubbo.dubboclub.CatTransaction
-appnameAppend=com.cxytiandi.servicecall.dubbo.dubboclub.AppNameAppendFilter
+catTransaction=com.cxytiandi.kitty.servicecall.dubbo.CatTransactionFilter
+appnameAppend=com.cxytiandi.kitty.servicecall.dubbo.AppNameAppendFilter

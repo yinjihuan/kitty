@@ -23,7 +23,7 @@ import java.util.concurrent.TimeoutException;
  * 代码来自官方给出的示列：https://github.com/dianping/cat/tree/master/integration/dubbo
  */
 @Activate(group = {CommonConstants.PROVIDER, CommonConstants.CONSUMER},order = -9000)
-public class CatTransaction implements Filter {
+public class CatTransactionFilter implements Filter {
 
     private final static String DUBBO_BIZ_ERROR="DUBBO_BIZ_ERROR";
 
