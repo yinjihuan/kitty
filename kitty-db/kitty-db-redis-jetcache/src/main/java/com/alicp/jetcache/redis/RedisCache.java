@@ -31,11 +31,6 @@ public class RedisCache<K, V> extends AbstractExternalCache<K, V> {
 
     private static ThreadLocalRandom random = ThreadLocalRandom.current();
 
-    private String CACHE_PUT = "CachePut";
-    private String CACHE_GET = "CacheGet";
-    private String CACHE_PUT_IF_ABSENT = "PutIfAbsent";
-    private String CACHE_REMOVE = "PutIfAbsent";
-
     public RedisCache(RedisCacheConfig<K, V> config) {
         super(config);
         this.config = config;
@@ -127,7 +122,7 @@ public class RedisCache<K, V> extends AbstractExternalCache<K, V> {
                 } else {
                     return CacheGetResult.NOT_EXISTS_WITHOUT_MSG;
                 }
-            }, CACHE_GET, name);
+            }, CacheConstant.CACHE_GET, name);
 
         } catch (Exception ex) {
             logError("GET", key, ex);
@@ -167,7 +162,7 @@ public class RedisCache<K, V> extends AbstractExternalCache<K, V> {
                     }
                 }
                 return new MultiGetResult<K, V>(CacheResultCode.SUCCESS, null, resultMap);
-            }, CACHE_GET, name);
+            }, CacheConstant.CACHE_GET, name);
 
         } catch (Exception ex) {
             logError("GET_ALL", "keys(" + keys.size() + ")", ex);
@@ -193,7 +188,7 @@ public class RedisCache<K, V> extends AbstractExternalCache<K, V> {
                 } else {
                     return new CacheResult(CacheResultCode.FAIL, rt);
                 }
-            }, CACHE_PUT, name);
+            }, CacheConstant.CACHE_PUT, name);
 
         } catch (Exception ex) {
             logError("PUT", key, ex);
@@ -225,7 +220,7 @@ public class RedisCache<K, V> extends AbstractExternalCache<K, V> {
                 }
                 return failCount == 0 ? CacheResult.SUCCESS_WITHOUT_MSG :
                         failCount == map.size() ? CacheResult.FAIL_WITHOUT_MSG : CacheResult.PART_SUCCESS_WITHOUT_MSG;
-            }, CACHE_PUT, name);
+            }, CacheConstant.CACHE_PUT, name);
         } catch (Exception ex) {
             logError("PUT_ALL", "map(" + map.size() + ")", ex);
             return new CacheResult(ex);
@@ -256,7 +251,7 @@ public class RedisCache<K, V> extends AbstractExternalCache<K, V> {
                 } else {
                     return CacheResult.FAIL_WITHOUT_MSG;
                 }
-            }, CACHE_REMOVE, name);
+            }, CacheConstant.CACHE_REMOVE, name);
         } catch (Exception ex) {
             logError("REMOVE", key, ex);
             return new CacheResult(ex);
@@ -274,7 +269,7 @@ public class RedisCache<K, V> extends AbstractExternalCache<K, V> {
                 byte[][] newKeys = keys.stream().map((k) -> buildKey(k)).toArray((len) -> new byte[keys.size()][]);
                 jedis.del(newKeys);
                 return CacheResult.SUCCESS_WITHOUT_MSG;
-            }, CACHE_REMOVE, name);
+            }, CacheConstant.CACHE_REMOVE, name);
 
         } catch (Exception ex) {
             logError("REMOVE_ALL", "keys(" + keys.size() + ")", ex);
@@ -302,7 +297,7 @@ public class RedisCache<K, V> extends AbstractExternalCache<K, V> {
                 } else {
                     return new CacheResult(CacheResultCode.FAIL, rt);
                 }
-            }, CACHE_PUT_IF_ABSENT, name);
+            }, CacheConstant.CACHE_PUT_IF_ABSENT, name);
 
         } catch (Exception ex) {
             logError("PUT_IF_ABSENT", key, ex);
