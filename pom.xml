@@ -18,6 +18,7 @@
         <module>kitty-spring-cloud-starter</module>
         <module>kitty-common</module>
         <module>kitty-gateway</module>
+        <module>kitty-distributed</module>
     </modules>
 
     <properties>
@@ -70,6 +71,11 @@
                 <version>3.2.0</version>
             </dependency>
 
+            <dependency>
+                <groupId>com.alibaba.csp</groupId>
+                <artifactId>sentinel-apache-dubbo-adapter</artifactId>
+                <version>1.6.3</version>
+            </dependency>
         </dependencies>
 
     </dependencyManagement>
