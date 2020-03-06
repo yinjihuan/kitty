@@ -22,6 +22,7 @@
         <module>kitty-spring-cloud-starter-feign</module>
         <module>kitty-spring-cloud-starter-gateway-zuul</module>
         <module>kitty-spring-cloud-starter-sentinel</module>
+        <module>kitty-spring-cloud-starter-sleuth</module>
     </modules>
 
 
