@@ -1,7 +1,8 @@
-package com.cxytiandi.kitty.cat.web;
+package com.cxytiandi.kitty.web.filter;
 
-import com.cxytiandi.kitty.cat.CatConstantsExt;
-import com.cxytiandi.kitty.cat.CatContext;
+
+import com.cxytiandi.kitty.common.cat.CatConstantsExt;
+import com.cxytiandi.kitty.common.cat.CatContext;
 import com.dianping.cat.Cat;
 import com.dianping.cat.CatConstants;
 import com.dianping.cat.message.Message;

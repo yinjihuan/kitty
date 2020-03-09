@@ -13,7 +13,7 @@
  */
 package feign;
 
-import com.cxytiandi.kitty.cat.CatConstantsExt;
+import com.cxytiandi.kitty.common.cat.CatConstantsExt;
 import com.dianping.cat.Cat;
 import com.dianping.cat.message.Message;
 import com.dianping.cat.message.Transaction;

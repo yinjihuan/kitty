@@ -15,12 +15,11 @@
         <dependency>
             <groupId>com.cxytiandi</groupId>
             <artifactId>kitty-gateway-zuul</artifactId>
-            <version>1.0-SNAPSHOT</version>
         </dependency>
+
         <dependency>
             <groupId>com.cxytiandi</groupId>
-            <artifactId>kitty-spring-cloud-starter-cat</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <artifactId>kitty-common</artifactId>
         </dependency>
     </dependencies>
 

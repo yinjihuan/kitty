@@ -1,7 +1,6 @@
 package com.cxytiandi.kitty.web.autoconfigure;
 
-import com.cxytiandi.kitty.cat.web.CatServerFilter;
-import com.dianping.cat.servlet.CatFilter;
+import com.cxytiandi.kitty.web.filter.CatServerFilter;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

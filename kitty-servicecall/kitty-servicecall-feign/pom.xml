@@ -16,15 +16,21 @@
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-openfeign</artifactId>
         </dependency>
+
         <dependency>
-            <groupId>com.cxytiandi</groupId>
-            <artifactId>kitty-spring-cloud-starter-cat</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <groupId>com.dianping.cat</groupId>
+            <artifactId>cat-client</artifactId>
         </dependency>
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
             <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <groupId>com.cxytiandi</groupId>
+            <artifactId>kitty-common</artifactId>
         </dependency>
     </dependencies>
 </project>

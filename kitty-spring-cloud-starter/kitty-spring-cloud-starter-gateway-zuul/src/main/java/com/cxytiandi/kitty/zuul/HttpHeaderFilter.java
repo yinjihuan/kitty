@@ -1,7 +1,7 @@
 package com.cxytiandi.kitty.zuul;
 
-import com.cxytiandi.kitty.cat.CatConstantsExt;
-import com.cxytiandi.kitty.cat.CatContext;
+import com.cxytiandi.kitty.common.cat.CatConstantsExt;
+import com.cxytiandi.kitty.common.cat.CatContext;
 import com.dianping.cat.Cat;
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;

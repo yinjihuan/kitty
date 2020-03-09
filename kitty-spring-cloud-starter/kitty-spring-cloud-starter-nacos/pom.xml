@@ -15,12 +15,11 @@
         <dependency>
             <groupId>com.cxytiandi</groupId>
             <artifactId>kitty-register-nacos</artifactId>
-            <version>1.0-SNAPSHOT</version>
         </dependency>
+
         <dependency>
             <groupId>com.cxytiandi</groupId>
             <artifactId>kitty-config-nacos</artifactId>
-            <version>1.0-SNAPSHOT</version>
         </dependency>
     </dependencies>
 </project>

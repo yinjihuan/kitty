@@ -1,4 +1,4 @@
-package com.cxytiandi.kitty.cat;
+package com.cxytiandi.kitty.common.cat;
 
 import com.dianping.cat.Cat;
 
