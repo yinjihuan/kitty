@@ -20,8 +20,6 @@ import java.util.Map;
 import java.util.concurrent.Future;
 
 @Activate(group = {"provider", "consumer"}, value = "tracing")
-// http://dubbo.apache.org/en-us/docs/dev/impls/filter.html
-// public constructor permitted to allow dubbo to instantiate this
 public final class TracingFilter implements Filter {
 
     Tracer tracer;
@@ -38,7 +36,9 @@ public final class TracingFilter implements Filter {
 
     @Override
     public Result invoke(Invoker<?> invoker, Invocation invocation) throws RpcException {
-        if (isInit == false) return invoker.invoke(invocation);
+        if (isInit == false) {
+            return invoker.invoke(invocation);
+        }
 
         RpcContext rpcContext = RpcContext.getContext();
         Kind kind = rpcContext.isProviderSide() ? Kind.SERVER : Kind.CLIENT;
@@ -69,7 +69,7 @@ public final class TracingFilter implements Filter {
                 onError(result.getException(), span);
             }
             isOneway = RpcUtils.isOneway(invoker.getUrl(), invocation);
-            Future<Object> future = rpcContext.getFuture(); // the case on async client invocation
+            Future<Object> future = rpcContext.getFuture();
             if (future instanceof FutureAdapter) {
                 deferFinish = true;
                 ((FutureAdapter) future).getFuture().setCallback(new FinishSpanCallback(span));
