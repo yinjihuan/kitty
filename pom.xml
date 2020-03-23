@@ -194,10 +194,10 @@
     </dependencyManagement>
 
     <!-- cat client 仓库，建议自己从github（https://github.com/dianping/cat/blob/master/lib/java/README.zh-CN.md）下载client -->
-   <!-- <repositories>
+    <repositories>
         <repository>
             <id>unidal.org</id>
             <url>http://unidal.org/nexus/content/repositories/releases/</url>
         </repository>
-    </repositories>-->
+    </repositories>
 </project>

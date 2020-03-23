@@ -6,6 +6,7 @@ import org.apache.http.HttpHost;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestClientBuilder;
 import org.elasticsearch.client.RestHighLevelClient;
+import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -17,6 +18,7 @@ import org.springframework.context.annotation.Configuration;
  * @作者介绍 http://cxytiandi.com/about
  * @时间 2020-03-09 23:05
  */
+@ImportAutoConfiguration(ElasticsearchProperties.class)
 @Configuration
 public class ElasticSearchClientAutoConfiguration {
 
