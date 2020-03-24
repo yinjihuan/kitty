@@ -2,6 +2,7 @@ package com.cxytiandi.kitty.db.elasticsearch.client;
 
 import com.cxytiandi.kitty.common.cat.CatTransactionManager;
 import com.cxytiandi.kitty.common.json.JsonUtils;
+import com.cxytiandi.kitty.common.page.Page;
 import com.dianping.cat.Cat;
 import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.delete.DeleteResponse;
@@ -14,6 +15,8 @@ import org.elasticsearch.action.update.UpdateResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.xcontent.XContentType;
+import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
@@ -58,6 +61,32 @@ public class KittyRestHighLevelClient {
             return CatTransactionManager.newTransaction(() -> {
                 try {
                     return restHighLevelClient.search(searchRequest, options);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }, ES_CAT_TYPE, "search");
+        } catch (Exception e) {
+            Cat.logError(e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    public <T> Page<T> search(SearchRequest searchRequest, Class<T> entityClass) {
+        try {
+            Map<String, Object> data = new HashMap<>();
+            data.put("searchRequest", searchRequest.toString());
+            return CatTransactionManager.newTransaction(() -> {
+                try {
+                    List<T> datas = new ArrayList<>();
+                    SearchResponse searchResponse = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);
+                    long totalHits = searchResponse.getHits().getTotalHits();
+                    SearchHit[] hits = searchResponse.getHits().getHits();
+                    for (SearchHit hit : hits) {
+                        String source = hit.getSourceAsString();
+                        datas.add(JsonUtils.toBean(entityClass, source));
+                    }
+                    SearchSourceBuilder searchSourceBuilder = searchRequest.source();
+                    return new Page(searchSourceBuilder.from(), searchSourceBuilder.size(), datas, totalHits);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
