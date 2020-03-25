@@ -64,7 +64,7 @@ public class KittyRestHighLevelClient {
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
-            }, ES_CAT_TYPE, "search");
+            }, ES_CAT_TYPE, "search", data);
         } catch (Exception e) {
             Cat.logError(e);
             throw new RuntimeException(e);
@@ -90,7 +90,7 @@ public class KittyRestHighLevelClient {
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
-            }, ES_CAT_TYPE, "search");
+            }, ES_CAT_TYPE, "search", data);
         } catch (Exception e) {
             Cat.logError(e);
             throw new RuntimeException(e);
@@ -99,8 +99,6 @@ public class KittyRestHighLevelClient {
 
     public IndexResponse index(IndexRequest indexRequest, RequestOptions options) {
         try {
-            Map<String, Object> data = new HashMap<>();
-            data.put("indexRequest", indexRequest.toString());
             return CatTransactionManager.newTransaction(() -> {
                 try {
                     return restHighLevelClient.index(indexRequest, options);
@@ -124,7 +122,7 @@ public class KittyRestHighLevelClient {
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
-            }, ES_CAT_TYPE, "delete");
+            }, ES_CAT_TYPE, "delete", data);
         } catch (Exception e) {
             Cat.logError(e);
             throw new RuntimeException(e);
