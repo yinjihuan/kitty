@@ -2,6 +2,8 @@ package com.cxytiandi.kitty.mybatis;
 
 import com.baomidou.mybatisplus.autoconfigure.ConfigurationCustomizer;
 import com.baomidou.mybatisplus.core.MybatisConfiguration;
+import com.baomidou.mybatisplus.extension.plugins.PaginationInterceptor;
+import com.baomidou.mybatisplus.extension.plugins.pagination.optimize.JsqlParserCountOptimize;
 import com.cxytiandi.kitty.db.mysql.mybatis.CatMybatisInterceptor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -30,6 +32,15 @@ public class MyBatisConfig {
                 configuration.addInterceptor(new CatMybatisInterceptor(datasourceUrl));
             }
         };
+    }
+
+    /**
+     * 分页插件
+     */
+    @Bean
+    public PaginationInterceptor paginationInterceptor() {
+        // 开启 count 的 join 优化,只针对 left join !!!
+        return new PaginationInterceptor().setCountSqlParser(new JsqlParserCountOptimize(true));
     }
 
 }

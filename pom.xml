@@ -35,6 +35,7 @@
         <brave-dubbo.version>5.10.1</brave-dubbo.version>
         <mybatis-plus.version>3.2.0</mybatis-plus.version>
         <sentinel-dubbo.version>1.6.3</sentinel-dubbo.version>
+        <xxl-job.version>2.1.2</xxl-job.version>
     </properties>
 
     <parent>
@@ -188,6 +189,12 @@
                 <groupId>io.zipkin.brave</groupId>
                 <artifactId>brave-instrumentation-dubbo-rpc</artifactId>
                 <version>${brave-dubbo.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.xuxueli</groupId>
+                <artifactId>xxl-job-core</artifactId>
+                <version>${xxl-job.version}</version>
             </dependency>
         </dependencies>
 
