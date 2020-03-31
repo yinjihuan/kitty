@@ -19,6 +19,7 @@
         <module>kitty-common</module>
         <module>kitty-gateway</module>
         <module>kitty-distributed</module>
+        <module>kitty-mq</module>
     </modules>
 
     <properties>
@@ -36,6 +37,7 @@
         <mybatis-plus.version>3.2.0</mybatis-plus.version>
         <sentinel-dubbo.version>1.6.3</sentinel-dubbo.version>
         <xxl-job.version>2.1.2</xxl-job.version>
+        <rocketmq.version>2.1.0</rocketmq.version>
     </properties>
 
     <parent>
@@ -195,6 +197,12 @@
                 <groupId>com.xuxueli</groupId>
                 <artifactId>xxl-job-core</artifactId>
                 <version>${xxl-job.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.rocketmq</groupId>
+                <artifactId>rocketmq-spring-boot-starter</artifactId>
+                <version>${rocketmq.version}</version>
             </dependency>
         </dependencies>
 

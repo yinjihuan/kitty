@@ -25,6 +25,7 @@
         <module>kitty-spring-cloud-starter-sleuth</module>
         <module>kitty-spring-cloud-starter-elasticsearch</module>
         <module>kitty-spring-cloud-starter-xxljob</module>
+        <module>kitty-spring-cloud-starter-rocketmq</module>
     </modules>
 
 
