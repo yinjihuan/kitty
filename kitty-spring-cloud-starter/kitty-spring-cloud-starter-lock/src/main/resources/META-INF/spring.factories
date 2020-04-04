@@ -1,0 +1,3 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+com.cxytiandi.kitty.lock.autoconfigure.DistributedLockAutoConfiguration,\
+com.cxytiandi.kitty.lock.autoconfigure.IdempotentAutoConfiguration

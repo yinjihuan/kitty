@@ -38,6 +38,7 @@
         <sentinel-dubbo.version>1.6.3</sentinel-dubbo.version>
         <xxl-job.version>2.1.2</xxl-job.version>
         <rocketmq.version>2.1.0</rocketmq.version>
+        <redisson.version>3.11.2</redisson.version>
     </properties>
 
     <parent>
@@ -134,6 +135,12 @@
             </dependency>
 
             <dependency>
+                <groupId>com.cxytiandi</groupId>
+                <artifactId>kitty-distributed-lock</artifactId>
+                <version>${kitty.version}</version>
+            </dependency>
+
+            <dependency>
                 <groupId>io.github.openfeign</groupId>
                 <artifactId>feign-okhttp</artifactId>
                 <version>${feign-okhttp.version}</version>
@@ -203,6 +210,12 @@
                 <groupId>org.apache.rocketmq</groupId>
                 <artifactId>rocketmq-spring-boot-starter</artifactId>
                 <version>${rocketmq.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.redisson</groupId>
+                <artifactId>redisson-spring-boot-starter</artifactId>
+                <version>${redisson.version}</version>
             </dependency>
         </dependencies>
 
