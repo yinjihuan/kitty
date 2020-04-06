@@ -27,6 +27,7 @@
         <module>kitty-spring-cloud-starter-xxljob</module>
         <module>kitty-spring-cloud-starter-rocketmq</module>
         <module>kitty-spring-cloud-starter-lock</module>
+        <module>kitty-spring-cloud-starter-id</module>
     </modules>
 
 
