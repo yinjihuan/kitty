@@ -1,5 +1,6 @@
 package com.cxytiandi.kitty.lock.idempotent;
 
+import com.cxytiandi.kitty.common.context.ContextHolder;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -26,7 +27,13 @@ public class DistributedIdempotentAspect {
     public Object around(ProceedingJoinPoint joinpoint, Idempotent idempotent) throws Throwable {
         Object[] args = joinpoint.getArgs();
         Method method = ((MethodSignature) joinpoint.getSignature()).getMethod();
-        String key = parseKey(idempotent.spelKey(), method, args);
+
+        String key = "";
+        if (StringUtils.hasText(idempotent.spelKey())) {
+            key = parseKey(idempotent.spelKey(), method, args);
+        } else {
+            key = ContextHolder.getCurrentContext().get("globalIdempotentId");
+        }
 
         String userInputKey = idempotent.value();
         if (!StringUtils.hasText(userInputKey)) {
@@ -71,9 +78,8 @@ public class DistributedIdempotentAspect {
         try {
             return parser.parseExpression(key).getValue(context, String.class);
         } catch (SpelEvaluationException e) {
-            // 解析不出SPEL默认为字符串Key
+            throw new RuntimeException("SPEL表达式解析错误", e);
         }
-        return key;
     }
 
 }

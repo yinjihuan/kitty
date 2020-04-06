@@ -1,5 +1,6 @@
 package com.cxytiandi.kitty.web.filter;
 
+import com.cxytiandi.kitty.common.context.ContextHolder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpMethod;
 import org.springframework.util.DigestUtils;
@@ -64,7 +65,8 @@ public class IdempotentParamFilter implements Filter {
 
         if (StringUtils.hasText(globalIdempotentId)) {
             globalIdempotentId = DigestUtils.md5DigestAsHex(globalIdempotentId.getBytes());
-            log.info("全局幂等ID {}", globalIdempotentId);
+            ContextHolder.getCurrentContext().add(IDEMPOTEMT_ID_NAME, globalIdempotentId);
+            log.debug("全局幂等ID {}", globalIdempotentId);
         }
 
         filterChain.doFilter(kittyRequestWrapper, servletResponse);

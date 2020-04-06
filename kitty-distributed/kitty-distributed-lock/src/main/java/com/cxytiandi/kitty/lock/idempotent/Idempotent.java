@@ -29,10 +29,10 @@ public @interface Idempotent {
     String value() default "";
 
     /**
-     * SPEL表达式，获取幂等Key
+     * SPEL表达式，获取幂等Key，默认会从线程上下文中获取框架提供的幂等ID
      * @return
      */
-    String spelKey();
+    String spelKey() default "";
 
     /**
      * 一级存储过期时间
