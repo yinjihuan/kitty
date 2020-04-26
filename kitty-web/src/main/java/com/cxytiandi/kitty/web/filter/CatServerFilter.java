@@ -47,8 +47,8 @@ public class CatServerFilter implements Filter {
         Transaction filterTransaction = Cat.newTransaction(CatConstants.TYPE_URL, uri);
 
         try {
-            Cat.logEvent(CatConstantsExt.Type_URL_METHOD, request.getMethod(), Message.SUCCESS, request.getRequestURL().toString());
-            Cat.logEvent(CatConstantsExt.Type_URL_CLIENT, request.getRemoteHost());
+            Cat.logEvent(CatConstantsExt.TYPE_URL_METHOD, request.getMethod(), Message.SUCCESS, request.getRequestURL().toString());
+            Cat.logEvent(CatConstantsExt.TYPE_URL_CLIENT, request.getRemoteHost());
 
             filterChain.doFilter(servletRequest, servletResponse);
             filterTransaction.setSuccessStatus();

@@ -12,7 +12,7 @@ import java.util.function.Supplier;
  */
 public class CatTransactionManager {
 
-    public static <T> T newTransaction(Supplier<T> function, String type, String name, Map<String, Object> data) throws Exception {
+    public static <T> T newTransaction(Supplier<T> function, String type, String name, Map<String, Object> data) {
         Transaction transaction = Cat.newTransaction(type, name);
         if (data != null && !data.isEmpty()) {
             data.forEach(transaction::addData);
@@ -22,6 +22,7 @@ public class CatTransactionManager {
             transaction.setStatus(Message.SUCCESS);
             return result;
         } catch (Exception e) {
+            Cat.logError(e);
             if (e.getMessage() != null) {
                 Cat.logEvent(type + "_" + name + "_Error", e.getMessage());
             }
@@ -32,7 +33,7 @@ public class CatTransactionManager {
         }
     }
 
-    public static <T> T newTransaction(Supplier<T> function, String type, String name) throws Exception {
+    public static <T> T newTransaction(Supplier<T> function, String type, String name) {
         return newTransaction(function, type, name, null);
     }
 
