@@ -118,6 +118,12 @@
 
             <dependency>
                 <groupId>com.cxytiandi</groupId>
+                <artifactId>kitty-db-redis-spring</artifactId>
+                <version>${kitty.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.cxytiandi</groupId>
                 <artifactId>kitty-register-nacos</artifactId>
                 <version>${kitty.version}</version>
             </dependency>

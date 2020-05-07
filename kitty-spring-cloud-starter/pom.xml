@@ -28,6 +28,7 @@
         <module>kitty-spring-cloud-starter-rocketmq</module>
         <module>kitty-spring-cloud-starter-lock</module>
         <module>kitty-spring-cloud-starter-id</module>
+        <module>kitty-spring-cloud-starter-redis</module>
     </modules>
 
 
