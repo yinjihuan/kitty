@@ -46,472 +46,479 @@ public class CatMonitorRedisConnection implements RedisConnection {
 
     @Override
     public boolean isClosed() {
-        return false;
+        return connection.isClosed();
     }
 
     @Override
     public Object getNativeConnection() {
-        return null;
+        return connection.getNativeConnection();
     }
 
     @Override
     public boolean isQueueing() {
-        return false;
+        return connection.isQueueing();
     }
 
     @Override
     public boolean isPipelined() {
-        return false;
+        return connection.isPipelined();
     }
 
     @Override
     public void openPipeline() {
-
+        connection.openPipeline();
     }
 
     @Override
     public List<Object> closePipeline() throws RedisPipelineException {
-        return null;
+        return connection.closePipeline();
     }
 
     @Override
     public RedisSentinelConnection getSentinelConnection() {
-        return null;
+        return connection.getSentinelConnection();
     }
 
     @Override
-    public Object execute(String s, byte[]... bytes) {
-        return null;
+    public Object execute(String command, byte[]... args) {
+        return catMonitorHelper.execute(RedisCommand.EXECUTE, () -> connection.execute(command, args));
     }
 
     @Override
-    public void select(int i) {
-
+    public void select(int dbIndex) {
+        catMonitorHelper.execute(RedisCommand.SELECT, () -> connection.select(dbIndex));
     }
 
     @Override
-    public byte[] echo(byte[] bytes) {
-        return new byte[0];
+    public byte[] echo(byte[] message) {
+        return catMonitorHelper.execute(RedisCommand.ECHO, () -> connection.echo(message));
     }
 
     @Override
     public String ping() {
-        return null;
+        return catMonitorHelper.execute(RedisCommand.PING, () -> connection.ping());
     }
 
     @Override
-    public Long geoAdd(byte[] bytes, Point point, byte[] bytes1) {
-        return null;
+    public Long geoAdd(byte[] key, Point point, byte[] member) {
+        return catMonitorHelper.execute(RedisCommand.GEOADD, key, () -> connection.geoAdd(key, point, member));
     }
 
     @Override
-    public Long geoAdd(byte[] bytes, Map<byte[], Point> map) {
-        return null;
+    public Long geoAdd(byte[] key, Map<byte[], Point> memberCoordinateMap) {
+        return catMonitorHelper.execute(RedisCommand.GEOADD, key, () -> connection.geoAdd(key, memberCoordinateMap));
     }
 
     @Override
-    public Long geoAdd(byte[] bytes, Iterable<GeoLocation<byte[]>> iterable) {
-        return null;
+    public Long geoAdd(byte[] key, Iterable<GeoLocation<byte[]>> locations) {
+        return catMonitorHelper.execute(RedisCommand.GEOADD, key, () -> connection.geoAdd(key, locations));
     }
 
     @Override
-    public Distance geoDist(byte[] bytes, byte[] bytes1, byte[] bytes2) {
-        return null;
+    public Distance geoDist(byte[] key, byte[] member1, byte[] member2) {
+        return catMonitorHelper.execute(RedisCommand.GEODIST, key, () -> connection.geoDist(key, member1, member2));
     }
 
     @Override
-    public Distance geoDist(byte[] bytes, byte[] bytes1, byte[] bytes2, Metric metric) {
-        return null;
+    public Distance geoDist(byte[] key, byte[] member1, byte[] member2, Metric metric) {
+        return catMonitorHelper.execute(RedisCommand.GEODIST, key, () -> connection.geoDist(key, member1, member2, metric));
     }
 
     @Override
-    public List<String> geoHash(byte[] bytes, byte[]... bytes1) {
-        return null;
+    public List<String> geoHash(byte[] key, byte[]... members) {
+        return catMonitorHelper.execute(RedisCommand.GEOHASH, key, () -> connection.geoHash(key, members));
     }
 
     @Override
-    public List<Point> geoPos(byte[] bytes, byte[]... bytes1) {
-        return null;
+    public List<Point> geoPos(byte[] key, byte[]... members) {
+        return catMonitorHelper.execute(RedisCommand.GEOPOS, key, () -> connection.geoPos(key, members));
     }
 
     @Override
-    public GeoResults<GeoLocation<byte[]>> geoRadius(byte[] bytes, Circle circle) {
-        return null;
+    public GeoResults<GeoLocation<byte[]>> geoRadius(byte[] key, Circle within) {
+        return catMonitorHelper.execute(RedisCommand.GEORADIUS, key, () -> connection.geoRadius(key, within));
     }
 
     @Override
-    public GeoResults<GeoLocation<byte[]>> geoRadius(byte[] bytes, Circle circle, GeoRadiusCommandArgs geoRadiusCommandArgs) {
-        return null;
+    public GeoResults<GeoLocation<byte[]>> geoRadius(byte[] key, Circle within, GeoRadiusCommandArgs args) {
+        return catMonitorHelper.execute(RedisCommand.GEORADIUS, key, () -> connection.geoRadius(key, within, args));
     }
 
     @Override
-    public GeoResults<GeoLocation<byte[]>> geoRadiusByMember(byte[] bytes, byte[] bytes1, Distance distance) {
-        return null;
+    public GeoResults<GeoLocation<byte[]>> geoRadiusByMember(byte[] key, byte[] member,
+                                                             Distance radius) {
+        return catMonitorHelper.execute(RedisCommand.GEORADIUSBYMEMBER, key, () -> connection.geoRadiusByMember(key, member, radius));
     }
 
     @Override
-    public GeoResults<GeoLocation<byte[]>> geoRadiusByMember(byte[] bytes, byte[] bytes1, Distance distance, GeoRadiusCommandArgs geoRadiusCommandArgs) {
-        return null;
+    public GeoResults<GeoLocation<byte[]>> geoRadiusByMember(byte[] key, byte[] member,
+                                                             Distance radius, GeoRadiusCommandArgs args) {
+        return catMonitorHelper.execute(RedisCommand.GEORADIUSBYMEMBER, key, () -> connection.geoRadiusByMember(key, member, radius, args));
     }
 
     @Override
-    public Long geoRemove(byte[] bytes, byte[]... bytes1) {
-        return null;
+    public Long geoRemove(byte[] key, byte[]... members) {
+        return catMonitorHelper.execute(RedisCommand.GEOREMOVE, key, () -> connection.geoRemove(key, members));
     }
 
     @Override
-    public Boolean hSet(byte[] bytes, byte[] bytes1, byte[] bytes2) {
-        return null;
+    public Boolean hSet(byte[] key, byte[] field, byte[] value) {
+        return catMonitorHelper.execute(RedisCommand.HSET, key, () -> connection.hSet(key, field, value));
     }
 
     @Override
-    public Boolean hSetNX(byte[] bytes, byte[] bytes1, byte[] bytes2) {
-        return null;
+    public Boolean hSetNX(byte[] key, byte[] field, byte[] value) {
+        return catMonitorHelper.execute(RedisCommand.HSETNX, key, () -> connection.hSetNX(key, field, value));
     }
 
     @Override
-    public byte[] hGet(byte[] bytes, byte[] bytes1) {
-        return new byte[0];
+    public byte[] hGet(byte[] key, byte[] field) {
+        return catMonitorHelper.execute(RedisCommand.HGET, key, () -> connection.hGet(key, field));
     }
 
     @Override
-    public List<byte[]> hMGet(byte[] bytes, byte[]... bytes1) {
-        return null;
+    public List<byte[]> hMGet(byte[] key, byte[]... fields) {
+        return catMonitorHelper.execute(RedisCommand.HMGET, key, () -> connection.hMGet(key, fields));
     }
 
     @Override
-    public void hMSet(byte[] bytes, Map<byte[], byte[]> map) {
-
+    public void hMSet(byte[] key, Map<byte[], byte[]> hashes) {
+        catMonitorHelper.execute(RedisCommand.HMSET, key, () -> connection.hMSet(key, hashes));
     }
 
     @Override
-    public Long hIncrBy(byte[] bytes, byte[] bytes1, long l) {
-        return null;
+    public Long hIncrBy(byte[] key, byte[] field, long delta) {
+        return catMonitorHelper.execute(RedisCommand.HINCRBY, key, () -> connection.hIncrBy(key, field, delta));
     }
 
     @Override
-    public Double hIncrBy(byte[] bytes, byte[] bytes1, double v) {
-        return null;
+    public Double hIncrBy(byte[] key, byte[] field, double delta) {
+        return catMonitorHelper.execute(RedisCommand.HINCRBY, key, () -> connection.hIncrBy(key, field, delta));
     }
 
     @Override
-    public Boolean hExists(byte[] bytes, byte[] bytes1) {
-        return null;
+    public Boolean hExists(byte[] key, byte[] field) {
+        return catMonitorHelper.execute(RedisCommand.HEXISTS, key, () -> connection.hExists(key, field));
     }
 
     @Override
-    public Long hDel(byte[] bytes, byte[]... bytes1) {
-        return null;
+    public Long hDel(byte[] key, byte[]... fields) {
+        return catMonitorHelper.execute(RedisCommand.HDEL, key, () -> connection.hDel(key));
     }
 
     @Override
-    public Long hLen(byte[] bytes) {
-        return null;
+    public Long hLen(byte[] key) {
+        return catMonitorHelper.execute(RedisCommand.HLEN, key, () -> connection.hLen(key));
     }
 
     @Override
-    public Set<byte[]> hKeys(byte[] bytes) {
-        return null;
+    public Set<byte[]> hKeys(byte[] key) {
+        return catMonitorHelper.execute(RedisCommand.HKEYS, key, () -> connection.hKeys(key));
     }
 
     @Override
-    public List<byte[]> hVals(byte[] bytes) {
-        return null;
+    public List<byte[]> hVals(byte[] key) {
+        return catMonitorHelper.execute(RedisCommand.HVALS, key, () -> connection.hVals(key));
     }
 
     @Override
-    public Map<byte[], byte[]> hGetAll(byte[] bytes) {
-        return null;
+    public Map<byte[], byte[]> hGetAll(byte[] key) {
+        return catMonitorHelper.execute(RedisCommand.HGETALL, key, () -> connection.hGetAll(key));
     }
 
     @Override
-    public Cursor<Entry<byte[], byte[]>> hScan(byte[] bytes, ScanOptions scanOptions) {
-        return null;
+    public Cursor<Entry<byte[], byte[]>> hScan(byte[] key, ScanOptions options) {
+        return catMonitorHelper.execute(RedisCommand.HSCAN, key, () -> connection.hScan(key, options));
     }
 
     @Override
-    public Long hStrLen(byte[] bytes, byte[] bytes1) {
-        return null;
+    public Long hStrLen(byte[] key, byte[] field) {
+        return catMonitorHelper.execute(RedisCommand.HSTRLEN, key, () -> connection.hStrLen(key, field));
     }
 
     @Override
-    public Long pfAdd(byte[] bytes, byte[]... bytes1) {
-        return null;
+    public Long pfAdd(byte[] key, byte[]... values) {
+        return catMonitorHelper.execute(RedisCommand.PFADD, key, () -> connection.pfAdd(key, values));
     }
 
     @Override
-    public Long pfCount(byte[]... bytes) {
-        return null;
+    public Long pfCount(byte[]... keys) {
+        return catMonitorHelper.execute(RedisCommand.PFCOUNT, keys, () -> connection.pfCount(keys));
     }
 
     @Override
-    public void pfMerge(byte[] bytes, byte[]... bytes1) {
-
+    public void pfMerge(byte[] destinationKey, byte[]... sourceKeys) {
+        catMonitorHelper.execute(RedisCommand.PFMERGE, destinationKey, () -> connection.pfMerge(destinationKey, sourceKeys));
     }
 
     @Override
-    public Long exists(byte[]... bytes) {
-        return null;
+    public Long exists(byte[]... keys) {
+        return catMonitorHelper.execute(RedisCommand.EXISTS, keys, () -> connection.exists(keys));
     }
 
     @Override
-    public Long del(byte[]... bytes) {
-        return null;
+    public Long del(byte[]... keys) {
+        return catMonitorHelper.execute(RedisCommand.DEL, keys, () -> connection.del(keys));
     }
 
     @Override
-    public Long unlink(byte[]... bytes) {
-        return null;
+    public Long unlink(byte[]... keys) {
+        return catMonitorHelper.execute(RedisCommand.UNLINK, keys, () -> connection.unlink(keys));
     }
 
     @Override
-    public DataType type(byte[] bytes) {
-        return null;
+    public DataType type(byte[] key) {
+        return catMonitorHelper.execute(RedisCommand.TYPE, key, () -> connection.type(key));
     }
 
     @Override
-    public Long touch(byte[]... bytes) {
-        return null;
+    public Long touch(byte[]... keys) {
+        return catMonitorHelper.execute(RedisCommand.TOUCH, keys, () -> connection.touch(keys));
     }
 
     @Override
-    public Set<byte[]> keys(byte[] bytes) {
-        return null;
+    public Set<byte[]> keys(byte[] pattern) {
+        return catMonitorHelper.execute(RedisCommand.KEYS, pattern, () -> connection.keys(pattern));
     }
 
     @Override
-    public Cursor<byte[]> scan(ScanOptions scanOptions) {
-        return null;
+    public Cursor<byte[]> scan(ScanOptions options) {
+        return catMonitorHelper.execute(RedisCommand.SCAN, () -> connection.scan(options));
     }
 
     @Override
     public byte[] randomKey() {
-        return new byte[0];
+        return catMonitorHelper.execute(RedisCommand.RANDOMKEY, () -> connection.randomKey());
     }
 
     @Override
-    public void rename(byte[] bytes, byte[] bytes1) {
-
+    public void rename(byte[] oldName, byte[] newName) {
+        catMonitorHelper.execute(RedisCommand.RENAME, () -> connection.rename(oldName, newName));
     }
 
     @Override
-    public Boolean renameNX(byte[] bytes, byte[] bytes1) {
-        return null;
+    public Boolean renameNX(byte[] oldName, byte[] newName) {
+        return catMonitorHelper.execute(RedisCommand.RENAMENX, () -> connection.renameNX(oldName, newName));
     }
 
     @Override
-    public Boolean expire(byte[] bytes, long l) {
-        return null;
+    public Boolean expire(byte[] key, long seconds) {
+        return catMonitorHelper.execute(RedisCommand.EXPIRE, key, () -> connection.expire(key, seconds));
     }
 
     @Override
-    public Boolean pExpire(byte[] bytes, long l) {
-        return null;
+    public Boolean pExpire(byte[] key, long millis) {
+        return catMonitorHelper.execute(RedisCommand.PEXPIRE, key, () -> connection.pExpire(key, millis));
     }
 
     @Override
-    public Boolean expireAt(byte[] bytes, long l) {
-        return null;
+    public Boolean expireAt(byte[] key, long unixTime) {
+        return catMonitorHelper.execute(RedisCommand.EXPIREAT, key, () -> connection.expireAt(key, unixTime));
     }
 
     @Override
-    public Boolean pExpireAt(byte[] bytes, long l) {
-        return null;
+    public Boolean pExpireAt(byte[] key, long unixTimeInMillis) {
+        return catMonitorHelper.execute(RedisCommand.PEXPIREAT, key, () -> connection.pExpireAt(key, unixTimeInMillis));
     }
 
     @Override
-    public Boolean persist(byte[] bytes) {
-        return null;
+    public Boolean persist(byte[] key) {
+        return catMonitorHelper.execute(RedisCommand.PERSIST, key, () -> connection.persist(key));
     }
 
     @Override
-    public Boolean move(byte[] bytes, int i) {
-        return null;
+    public Boolean move(byte[] key, int dbIndex) {
+        return catMonitorHelper.execute(RedisCommand.MOVE, key, () -> connection.move(key, dbIndex));
     }
 
     @Override
-    public Long ttl(byte[] bytes) {
-        return null;
+    public Long ttl(byte[] key) {
+        return catMonitorHelper.execute(RedisCommand.TTL, key, () -> connection.ttl(key));
     }
 
     @Override
-    public Long ttl(byte[] bytes, TimeUnit timeUnit) {
-        return null;
+    public Long ttl(byte[] key, TimeUnit timeUnit) {
+        return catMonitorHelper.execute(RedisCommand.TTL, key, () -> connection.ttl(key, timeUnit));
     }
 
     @Override
-    public Long pTtl(byte[] bytes) {
-        return null;
+    public Long pTtl(byte[] key) {
+        return catMonitorHelper.execute(RedisCommand.PTTL, key, () -> connection.pTtl(key));
     }
 
     @Override
-    public Long pTtl(byte[] bytes, TimeUnit timeUnit) {
-        return null;
+    public Long pTtl(byte[] key, TimeUnit timeUnit) {
+        return catMonitorHelper.execute(RedisCommand.PTTL, key, () -> connection.pTtl(key, timeUnit));
     }
 
     @Override
-    public List<byte[]> sort(byte[] bytes, SortParameters sortParameters) {
-        return null;
+    public List<byte[]> sort(byte[] key, SortParameters params) {
+        return catMonitorHelper.execute(RedisCommand.SORT, key, () -> connection.sort(key, params));
     }
 
     @Override
-    public Long sort(byte[] bytes, SortParameters sortParameters, byte[] bytes1) {
-        return null;
+    public Long sort(byte[] key, SortParameters params, byte[] storeKey) {
+        return catMonitorHelper.execute(RedisCommand.SORT, key, () -> connection.sort(key, params, storeKey));
     }
 
     @Override
-    public byte[] dump(byte[] bytes) {
-        return new byte[0];
+    public byte[] dump(byte[] key) {
+        return catMonitorHelper.execute(RedisCommand.DUMP, key, () -> connection.dump(key));
     }
 
     @Override
-    public void restore(byte[] bytes, long l, byte[] bytes1, boolean b) {
-
+    public void restore(byte[] key, long ttlInMillis, byte[] serializedValue) {
+        catMonitorHelper.execute(RedisCommand.RESTORE, key, () -> connection.restore(key, ttlInMillis, serializedValue));
     }
 
     @Override
-    public ValueEncoding encodingOf(byte[] bytes) {
-        return null;
+    public void restore(byte[] key, long ttlInMillis, byte[] serializedValue, boolean replace) {
+        catMonitorHelper.execute(RedisCommand.RESTORE, key, () -> connection.restore(key, ttlInMillis, serializedValue, replace));
     }
 
     @Override
-    public Duration idletime(byte[] bytes) {
-        return null;
+    public ValueEncoding encodingOf(byte[] key) {
+        return catMonitorHelper.execute(RedisCommand.ENCODING, key, () -> connection.encodingOf(key));
     }
 
     @Override
-    public Long refcount(byte[] bytes) {
-        return null;
+    public Duration idletime(byte[] key) {
+        return catMonitorHelper.execute(RedisCommand.IDLETIME, key, () -> connection.idletime(key));
     }
 
     @Override
-    public Long rPush(byte[] bytes, byte[]... bytes1) {
-        return null;
+    public Long refcount(byte[] key) {
+        return catMonitorHelper.execute(RedisCommand.REFCOUNT, key, () -> connection.refcount(key));
     }
 
     @Override
-    public Long lPush(byte[] bytes, byte[]... bytes1) {
-        return null;
+    public Long rPush(byte[] key, byte[]... values) {
+        return catMonitorHelper.execute(RedisCommand.RPUSH, key, () -> connection.rPush(key, values));
     }
 
     @Override
-    public Long rPushX(byte[] bytes, byte[] bytes1) {
-        return null;
+    public Long lPush(byte[] key, byte[]... values) {
+        return catMonitorHelper.execute(RedisCommand.LPUSH, key, () -> connection.lPush(key, values));
     }
 
     @Override
-    public Long lPushX(byte[] bytes, byte[] bytes1) {
-        return null;
+    public Long rPushX(byte[] key, byte[] value) {
+        return catMonitorHelper.execute(RedisCommand.RPUSHX, key, () -> connection.rPushX(key, value));
     }
 
     @Override
-    public Long lLen(byte[] bytes) {
-        return null;
+    public Long lPushX(byte[] key, byte[] value) {
+        return catMonitorHelper.execute(RedisCommand.LPUSHX, key, () -> connection.lPushX(key, value));
     }
 
     @Override
-    public List<byte[]> lRange(byte[] bytes, long l, long l1) {
-        return null;
+    public Long lLen(byte[] key) {
+        return catMonitorHelper.execute(RedisCommand.LLEN, key, () -> connection.lLen(key));
     }
 
     @Override
-    public void lTrim(byte[] bytes, long l, long l1) {
-
+    public List<byte[]> lRange(byte[] key, long start, long end) {
+        return catMonitorHelper.execute(RedisCommand.LRANGE, key, () -> connection.lRange(key, start, end));
     }
 
     @Override
-    public byte[] lIndex(byte[] bytes, long l) {
-        return new byte[0];
+    public void lTrim(byte[] key, long start, long end) {
+        catMonitorHelper.execute(RedisCommand.LTRIM, key, () -> connection.lTrim(key, start, end));
     }
 
     @Override
-    public Long lInsert(byte[] bytes, Position position, byte[] bytes1, byte[] bytes2) {
-        return null;
+    public byte[] lIndex(byte[] key, long index) {
+        return catMonitorHelper.execute(RedisCommand.LINDEX, key, () -> connection.lIndex(key, index));
     }
 
     @Override
-    public void lSet(byte[] bytes, long l, byte[] bytes1) {
-
+    public Long lInsert(byte[] key, Position where, byte[] pivot, byte[] value) {
+        return catMonitorHelper.execute(RedisCommand.LINSERT, key, () -> connection.lInsert(key, where, pivot, value));
     }
 
     @Override
-    public Long lRem(byte[] bytes, long l, byte[] bytes1) {
-        return null;
+    public void lSet(byte[] key, long index, byte[] value) {
+        catMonitorHelper.execute(RedisCommand.LSET, key, () -> connection.lSet(key, index, value));
     }
 
     @Override
-    public byte[] lPop(byte[] bytes) {
-        return new byte[0];
+    public Long lRem(byte[] key, long count, byte[] value) {
+        return catMonitorHelper.execute(RedisCommand.LREM, key, () -> connection.lRem(key, count, value));
     }
 
     @Override
-    public byte[] rPop(byte[] bytes) {
-        return new byte[0];
+    public byte[] lPop(byte[] key) {
+        return catMonitorHelper.execute(RedisCommand.LPOP, key, () -> connection.lPop(key));
     }
 
     @Override
-    public List<byte[]> bLPop(int i, byte[]... bytes) {
-        return null;
+    public byte[] rPop(byte[] key) {
+        return catMonitorHelper.execute(RedisCommand.RPOP, key, () -> connection.rPop(key));
     }
 
     @Override
-    public List<byte[]> bRPop(int i, byte[]... bytes) {
-        return null;
+    public List<byte[]> bLPop(int timeout, byte[]... keys) {
+        return catMonitorHelper.execute(RedisCommand.BLPOP, keys, () -> connection.bLPop(timeout, keys));
     }
 
     @Override
-    public byte[] rPopLPush(byte[] bytes, byte[] bytes1) {
-        return new byte[0];
+    public List<byte[]> bRPop(int timeout, byte[]... keys) {
+        return catMonitorHelper.execute(RedisCommand.RPOPLPUSH, keys, () -> connection.bRPop(timeout, keys));
     }
 
     @Override
-    public byte[] bRPopLPush(int i, byte[] bytes, byte[] bytes1) {
-        return new byte[0];
+    public byte[] rPopLPush(byte[] srcKey, byte[] dstKey) {
+        return catMonitorHelper.execute(RedisCommand.RPOPLPUSH, srcKey, () -> connection.rPopLPush(srcKey, dstKey));
+    }
+
+    @Override
+    public byte[] bRPopLPush(int timeout, byte[] srcKey, byte[] dstKey) {
+        return catMonitorHelper.execute(RedisCommand.BRPOPLPUSH, srcKey, () -> connection.bRPopLPush(timeout, srcKey, dstKey));
     }
 
     @Override
     public boolean isSubscribed() {
-        return false;
+        return connection.isSubscribed();
     }
 
     @Override
     public Subscription getSubscription() {
-        return null;
+        return connection.getSubscription();
     }
 
     @Override
-    public Long publish(byte[] bytes, byte[] bytes1) {
-        return null;
+    public Long publish(byte[] channel, byte[] message) {
+        return catMonitorHelper.execute(RedisCommand.PUBLISH, () -> connection.publish(channel, message));
     }
 
     @Override
-    public void subscribe(MessageListener messageListener, byte[]... bytes) {
-
+    public void subscribe(MessageListener listener, byte[]... channels) {
+        catMonitorHelper.execute(RedisCommand.SUBSCRIBE, () -> connection.subscribe(listener, channels));
     }
 
     @Override
-    public void pSubscribe(MessageListener messageListener, byte[]... bytes) {
-
+    public void pSubscribe(MessageListener listener, byte[]... patterns) {
+        catMonitorHelper.execute(RedisCommand.PSUBSCRIBE, () -> connection.pSubscribe(listener, patterns));
     }
 
     @Override
     public void scriptFlush() {
-
+        catMonitorHelper.execute(RedisCommand.SCRIPT_FLUSH, () -> connection.scriptFlush());
     }
 
     @Override
     public void scriptKill() {
-
+        catMonitorHelper.execute(RedisCommand.SCRIPT_KILL, () -> connection.scriptKill());
     }
 
     @Override
-    public String scriptLoad(byte[] bytes) {
-        return null;
+    public String scriptLoad(byte[] script) {
+        return catMonitorHelper.execute(RedisCommand.SCRIPT_LOAD, () -> connection.scriptLoad(script));
     }
 
     @Override
-    public List<Boolean> scriptExists(String... strings) {
-        return null;
+    public List<Boolean> scriptExists(String... scriptShas) {
+        return catMonitorHelper.execute(RedisCommand.SCRIPT_EXISTS, () -> connection.scriptExists(scriptShas));
     }
 
     @Override
