@@ -8,9 +8,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import com.cxytiandi.kitty.common.cat.CatTransactionManager;
 import org.springframework.dao.DataAccessException;
-import org.springframework.data.domain.Range;
 import org.springframework.data.geo.Circle;
 import org.springframework.data.geo.Distance;
 import org.springframework.data.geo.GeoResults;
@@ -517,158 +515,158 @@ public class CatMonitorRedisConnection implements RedisConnection {
     }
 
     @Override
-    public <T> T eval(byte[] bytes, ReturnType returnType, int i, byte[]... bytes1) {
-        return null;
+    public <T> T eval(byte[] script, ReturnType returnType, int numKeys, byte[]... keysAndArgs) {
+        return catMonitorHelper.execute(RedisCommand.EVAL, () -> connection.eval(script, returnType, numKeys, keysAndArgs));
     }
 
     @Override
-    public <T> T evalSha(String s, ReturnType returnType, int i, byte[]... bytes) {
-        return null;
+    public <T> T evalSha(String scriptSha, ReturnType returnType, int numKeys, byte[]... keysAndArgs) {
+        return catMonitorHelper.execute(RedisCommand.EVALSHA, () -> connection.evalSha(scriptSha, returnType, numKeys, keysAndArgs));
     }
 
     @Override
-    public <T> T evalSha(byte[] bytes, ReturnType returnType, int i, byte[]... bytes1) {
-        return null;
+    public <T> T evalSha(byte[] scriptSha, ReturnType returnType, int numKeys, byte[]... keysAndArgs) {
+        return catMonitorHelper.execute(RedisCommand.EVALSHA, () -> connection.evalSha(scriptSha, returnType, numKeys, keysAndArgs));
     }
 
     @Override
     public void bgReWriteAof() {
-
+        catMonitorHelper.execute(RedisCommand.BGREWRITEAOF, () -> connection.bgReWriteAof());
     }
 
     @Override
     public void bgSave() {
-
+        catMonitorHelper.execute(RedisCommand.BGSAVE, () -> connection.bgSave());
     }
 
     @Override
     public Long lastSave() {
-        return null;
+        return catMonitorHelper.execute(RedisCommand.LASTSAVE, () -> connection.lastSave());
     }
 
     @Override
     public void save() {
-
+        catMonitorHelper.execute(RedisCommand.SAVE, () -> connection.save());
     }
 
     @Override
     public Long dbSize() {
-        return null;
+        return catMonitorHelper.execute(RedisCommand.DBSIZE, () -> connection.dbSize());
     }
 
     @Override
     public void flushDb() {
-
+        catMonitorHelper.execute(RedisCommand.FLUSHDB, () -> connection.flushDb());
     }
 
     @Override
     public void flushAll() {
-
+        catMonitorHelper.execute(RedisCommand.FLUSHALL, () -> connection.flushAll());
     }
 
     @Override
     public Properties info() {
-        return null;
+        return catMonitorHelper.execute(RedisCommand.INFO, () -> connection.info());
     }
 
     @Override
-    public Properties info(String s) {
-        return null;
+    public Properties info(String section) {
+        return catMonitorHelper.execute(RedisCommand.INFO, () -> connection.info(section));
     }
 
     @Override
     public void shutdown() {
-
+        catMonitorHelper.execute(RedisCommand.SHUTDOWN, () -> connection.shutdown());
     }
 
     @Override
     public void shutdown(ShutdownOption shutdownOption) {
-
+        catMonitorHelper.execute(RedisCommand.SHUTDOWN, () -> connection.shutdown(shutdownOption));
     }
 
     @Override
-    public Properties getConfig(String s) {
-        return null;
+    public Properties getConfig(String pattern) {
+        return catMonitorHelper.execute(RedisCommand.CONFIG_GET, () -> connection.getConfig(pattern));
     }
 
     @Override
-    public void setConfig(String s, String s1) {
-
+    public void setConfig(String param, String value) {
+        catMonitorHelper.execute(RedisCommand.CONFIG_SET, () -> connection.setConfig(param, value));
     }
 
     @Override
     public void resetConfigStats() {
-
+        catMonitorHelper.execute(RedisCommand.CONFIG_RESETSTAT, () -> connection.resetConfigStats());
     }
 
     @Override
     public Long time() {
-        return null;
+        return catMonitorHelper.execute(RedisCommand.TIME, () -> connection.time());
     }
 
     @Override
-    public void killClient(String s, int i) {
-
+    public void killClient(String host, int port) {
+        catMonitorHelper.execute(RedisCommand.CLIENT_KILL, () -> connection.killClient(host, port));
     }
 
     @Override
-    public void setClientName(byte[] bytes) {
-
+    public void setClientName(byte[] name) {
+        catMonitorHelper.execute(RedisCommand.CLIENT_SETNAME, () -> connection.setClientName(name));
     }
 
     @Override
     public String getClientName() {
-        return null;
+        return catMonitorHelper.execute(RedisCommand.CLIENT_GETNAME, () -> connection.getClientName());
     }
 
     @Override
     public List<RedisClientInfo> getClientList() {
-        return null;
+        return catMonitorHelper.execute(RedisCommand.CLIENT_LIST, () -> connection.getClientList());
     }
 
     @Override
-    public void slaveOf(String s, int i) {
-
+    public void slaveOf(String host, int port) {
+        catMonitorHelper.execute(RedisCommand.SLAVEOF, () -> connection.slaveOf(host, port));
     }
 
     @Override
     public void slaveOfNoOne() {
-
+        catMonitorHelper.execute(RedisCommand.SLAVEOFNOONE, () -> connection.slaveOfNoOne());
     }
 
     @Override
-    public void migrate(byte[] bytes, RedisNode redisNode, int i, MigrateOption migrateOption) {
-
+    public void migrate(byte[] key, RedisNode target, int dbIndex, MigrateOption option) {
+        catMonitorHelper.execute(RedisCommand.MIGRATE, key, () -> connection.migrate(key, target, dbIndex, option));
     }
 
     @Override
-    public void migrate(byte[] bytes, RedisNode redisNode, int i, MigrateOption migrateOption, long l) {
-
+    public void migrate(byte[] key, RedisNode target, int dbIndex, MigrateOption option, long timeout) {
+        catMonitorHelper.execute(RedisCommand.MIGRATE, key, () -> connection.migrate(key, target, dbIndex, option, timeout));
     }
 
     @Override
-    public Long sAdd(byte[] bytes, byte[]... bytes1) {
-        return null;
+    public Long sAdd(byte[] key, byte[]... values) {
+        return catMonitorHelper.execute(RedisCommand.SADD, key, () -> connection.sAdd(key, values));
     }
 
     @Override
-    public Long sRem(byte[] bytes, byte[]... bytes1) {
-        return null;
+    public Long sRem(byte[] key, byte[]... values) {
+        return catMonitorHelper.execute(RedisCommand.SREM, key, () -> connection.sRem(key, values));
     }
 
     @Override
-    public byte[] sPop(byte[] bytes) {
-        return new byte[0];
+    public byte[] sPop(byte[] key) {
+        return catMonitorHelper.execute(RedisCommand.SPOP, key, () -> connection.sPop(key));
     }
 
     @Override
-    public List<byte[]> sPop(byte[] bytes, long l) {
-        return null;
+    public List<byte[]> sPop(byte[] key, long count) {
+        return catMonitorHelper.execute(RedisCommand.SPOP, key, () -> connection.sPop(key, count));
     }
 
     @Override
-    public Boolean sMove(byte[] bytes, byte[] bytes1, byte[] bytes2) {
-        return null;
+    public Boolean sMove(byte[] srcKey, byte[] destKey, byte[] value) {
+        return catMonitorHelper.execute(RedisCommand.SMOVE, srcKey, () -> connection.sMove(srcKey, destKey, value));
     }
 
     @Override
