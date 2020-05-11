@@ -2,10 +2,17 @@ package com.cxytiandi.kitty.web.autoconfigure;
 
 import com.cxytiandi.kitty.web.filter.CatServerFilter;
 import com.cxytiandi.kitty.web.filter.IdempotentParamFilter;
+import com.cxytiandi.kitty.web.interceptor.RestTemplateRequestInterceptor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.client.ClientHttpRequestInterceptor;
+import org.springframework.web.client.RestTemplate;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Web自动配置
@@ -31,6 +38,9 @@ public class WebAutoConfiguration {
      */
     @Value("${kitty.web.userHeaderName:}")
     private String userHeaderName;
+
+    @Autowired(required = false)
+    private List<RestTemplate> restTemplates;
 
     /**
      * 配置Cat Filter
@@ -61,5 +71,21 @@ public class WebAutoConfiguration {
         registration.setOrder(1);
         return registration;
     }
+
+    /**
+     *  RestTemplate 拦截器
+     * @return
+     */
+    @Bean
+    public RestTemplateRequestInterceptor restTemplateRequestInterceptor() {
+        RestTemplateRequestInterceptor restTemplateRequestInterceptor = new RestTemplateRequestInterceptor();
+        restTemplates.stream().forEach(restTemplate -> {
+            List<ClientHttpRequestInterceptor> list = new ArrayList<>(restTemplate.getInterceptors());
+            list.add(restTemplateRequestInterceptor);
+            restTemplate.setInterceptors(list);
+        });
+        return restTemplateRequestInterceptor;
+    }
+
 
 }

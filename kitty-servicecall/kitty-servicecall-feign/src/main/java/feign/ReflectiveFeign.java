@@ -110,7 +110,7 @@ public class ReflectiveFeign extends Feign {
                 return toString();
             }
             String name = method.getDeclaringClass().getSimpleName()+"."+method.getName();
-            String type = CatConstantsExt.Type_Call;
+            String type = CatConstantsExt.TYPE_CALL_FEIGN;
             Transaction transaction = Cat.newTransaction(type, name);
             String apiUri = getApiUri(method.getDeclaringClass(), method);
             transaction.addData("URI", apiUri);

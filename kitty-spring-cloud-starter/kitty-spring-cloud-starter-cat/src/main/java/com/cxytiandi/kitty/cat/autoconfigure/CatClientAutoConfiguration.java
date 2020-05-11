@@ -1,6 +1,7 @@
 package com.cxytiandi.kitty.cat.autoconfigure;
 
 import com.cxytiandi.kitty.cat.CatClientInit;
+import com.cxytiandi.kitty.cat.aspect.CatTransactionAspect;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,6 +28,11 @@ public class CatClientAutoConfiguration {
     @Bean
     public CatClientInit catClientInit() {
         return new CatClientInit(domain, servers);
+    }
+
+    @Bean
+    public CatTransactionAspect catTransactionAspect() {
+        return new CatTransactionAspect();
     }
 
 }
