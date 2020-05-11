@@ -19,7 +19,7 @@ import java.util.Map;
  * @微信公众号 猿天地
  * @GitHub https://github.com/yinjihuan
  * @作者介绍 http://cxytiandi.com/about
- * @时间 2020-05-11 23:07
+ * @时间 2020-05-11 21:20
  */
 public class RestTemplateRequestInterceptor implements ClientHttpRequestInterceptor {
 
@@ -36,7 +36,6 @@ public class RestTemplateRequestInterceptor implements ClientHttpRequestIntercep
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
-                }
-                , CatConstantsExt.TYPE_CALL_RESTTEMPLATE, name);
+                }, CatConstantsExt.TYPE_CALL_RESTTEMPLATE, name);
     }
 }
