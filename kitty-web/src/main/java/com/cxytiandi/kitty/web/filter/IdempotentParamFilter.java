@@ -1,6 +1,7 @@
 package com.cxytiandi.kitty.web.filter;
 
 import com.cxytiandi.kitty.common.context.ContextHolder;
+import com.cxytiandi.kitty.web.wrapper.KittyRequestWrapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpMethod;
 import org.springframework.util.DigestUtils;

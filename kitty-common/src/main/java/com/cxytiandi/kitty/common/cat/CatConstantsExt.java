@@ -18,6 +18,7 @@ public class CatConstantsExt extends CatConstants {
     public static final String TYPE_URL_METHOD = "URL.Method";
     public static final String METHOD = "Method";
     public static final String TYPE_URL_CLIENT = "URL.Client";
-    public static final String Type_Call = "HttpCall";
+    public static final String TYPE_CALL_FEIGN = "HttpCall.Feign";
+    public static final String TYPE_CALL_RESTTEMPLATE = "HttpCall.RestTemplate";
 
 }
