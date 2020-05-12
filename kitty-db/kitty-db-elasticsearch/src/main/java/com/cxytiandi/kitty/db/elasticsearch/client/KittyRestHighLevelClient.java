@@ -6,6 +6,7 @@ import com.cxytiandi.kitty.common.page.Page;
 import com.cxytiandi.kitty.db.elasticsearch.constant.ElasticSearchConstant;
 import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.delete.DeleteResponse;
+import org.elasticsearch.action.get.GetRequest;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.search.SearchRequest;
@@ -14,6 +15,8 @@ import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.action.update.UpdateResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.client.core.CountRequest;
+import org.elasticsearch.client.core.CountResponse;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
@@ -211,4 +214,43 @@ public class KittyRestHighLevelClient {
         return delete(deleteRequest, options);
     }
 
+    public CountResponse count(CountRequest countRequest, RequestOptions options) {
+        Map<String, Object> catData = new HashMap<>(1);
+        catData.put(ElasticSearchConstant.COUNT_REQUEST, countRequest.toString());
+        return CatTransactionManager.newTransaction(() -> {
+            try {
+                return restHighLevelClient.count(countRequest, options);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }, ElasticSearchConstant.ES_CAT_TYPE, ElasticSearchConstant.COUNT, catData);
+    }
+
+    public CountResponse count(CountRequest countRequest) {
+       return count(countRequest, RequestOptions.DEFAULT);
+    }
+
+    public long countResult(CountRequest countRequest) {
+        return count(countRequest, RequestOptions.DEFAULT).getCount();
+    }
+
+    public long countResult(CountRequest countRequest, RequestOptions options) {
+        return count(countRequest, options).getCount();
+    }
+
+    public boolean existsSource(GetRequest getRequest, RequestOptions options) {
+        Map<String, Object> catData = new HashMap<>(1);
+        catData.put(ElasticSearchConstant.EXISTS_SOURCE_REQUEST, getRequest.toString());
+        return CatTransactionManager.newTransaction(() -> {
+            try {
+                return restHighLevelClient.existsSource(getRequest, options);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }, ElasticSearchConstant.ES_CAT_TYPE, ElasticSearchConstant.EXISTS_SOURCE, catData);
+    }
+
+    public boolean existsSource(GetRequest getRequest) {
+       return existsSource(getRequest, RequestOptions.DEFAULT);
+    }
 }
