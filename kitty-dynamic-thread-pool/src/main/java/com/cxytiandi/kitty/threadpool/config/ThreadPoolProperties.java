@@ -1,5 +1,7 @@
-package com.cxytiandi.kitty.threadpool;
+package com.cxytiandi.kitty.threadpool.config;
 
+import com.cxytiandi.kitty.threadpool.enums.QueueTypeEnum;
+import com.cxytiandi.kitty.threadpool.enums.RejectedExecutionHandlerEnum;
 import lombok.Data;
 
 import java.util.concurrent.TimeUnit;
@@ -58,5 +60,10 @@ public class ThreadPoolProperties {
      * 空闲线程存活时间单位
      */
     private TimeUnit unit = TimeUnit.MILLISECONDS;
+
+    /**
+     * 队列容量阀值，超过此值告警
+     */
+    private int queueCapacityThreshold;
 
 }

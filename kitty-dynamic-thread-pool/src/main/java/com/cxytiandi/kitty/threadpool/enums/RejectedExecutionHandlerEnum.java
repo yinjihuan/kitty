@@ -1,23 +1,23 @@
-package com.cxytiandi.kitty.threadpool;
+package com.cxytiandi.kitty.threadpool.enums;
 
 /**
- * 队列类型
+ * 拒绝策略类型
  *
  * @作者 尹吉欢
  * @个人微信 jihuan900
  * @微信公众号 猿天地
  * @GitHub https://github.com/yinjihuan
  * @作者介绍 http://cxytiandi.com/about
- * @时间 2020-05-25 22:56
+ * @时间 2020-05-25 22:15
  */
-public enum QueueTypeEnum {
+public enum RejectedExecutionHandlerEnum {
 
-    LINKED_BLOCKING_QUEUE("LinkedBlockingQueue"),
-    SYNCHRONOUS_QUEUE("SynchronousQueue"),
-    ARRAY_BLOCKING_QUEUE("ArrayBlockingQueue"),
-    PRIORITY_BLOCKING_QUEUE("PriorityBlockingQueue");
+    CALLER_RUNS_POLICY("CallerRunsPolicy"),
+    ABORT_POLICY("AbortPolicy"),
+    DISCARD_POLICY("DiscardPolicy"),
+    DISCARD_OLDEST_POLICY("DiscardOldestPolicy");
 
-    QueueTypeEnum(String type) {
+    RejectedExecutionHandlerEnum(String type) {
         this.type = type;
     };
 
@@ -28,7 +28,7 @@ public enum QueueTypeEnum {
     }
 
     public static boolean exists(String type) {
-        for (QueueTypeEnum typeEnum : QueueTypeEnum.values()) {
+        for (RejectedExecutionHandlerEnum typeEnum : RejectedExecutionHandlerEnum.values()) {
             if (typeEnum.getType().equals(type)) {
                 return true;
             }

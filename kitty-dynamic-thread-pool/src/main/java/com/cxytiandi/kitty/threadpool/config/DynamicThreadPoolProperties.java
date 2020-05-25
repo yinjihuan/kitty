@@ -1,4 +1,4 @@
-package com.cxytiandi.kitty.threadpool;
+package com.cxytiandi.kitty.threadpool.config;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;

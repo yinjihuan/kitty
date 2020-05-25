@@ -4,6 +4,9 @@ import com.alibaba.cloud.nacos.NacosConfigProperties;
 import com.alibaba.nacos.api.config.ConfigService;
 import com.alibaba.nacos.api.config.listener.AbstractListener;
 import com.alibaba.nacos.api.exception.NacosException;
+import com.cxytiandi.kitty.threadpool.config.DynamicThreadPoolProperties;
+import com.cxytiandi.kitty.threadpool.enums.QueueTypeEnum;
+import com.cxytiandi.kitty.threadpool.enums.RejectedExecutionHandlerEnum;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import javax.annotation.PostConstruct;
@@ -11,8 +14,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
+ * 动态线程池
+ *
  * @作者 尹吉欢
  * @个人微信 jihuan900
  * @微信公众号 猿天地
@@ -32,7 +38,12 @@ public class DynamicThreadPoolManager {
     /**
      * 存储线程池对象，Key:名称 Value:对象
      */
-    private Map<String, ThreadPoolExecutor> threadPoolExecutorMap = new HashMap<>();
+    private Map<String, KittyThreadPoolExecutor> threadPoolExecutorMap = new HashMap<>();
+
+    /**
+     * 存储线程池拒绝次数，Key:名称 Value:次数
+     */
+    private static Map<String, AtomicLong> threadPoolExecutorRejectCountMap = new ConcurrentHashMap<>();
 
     @PostConstruct
     public void init() {
@@ -60,20 +71,20 @@ public class DynamicThreadPoolManager {
 
     private void createThreadPoolExecutor(DynamicThreadPoolProperties threadPoolProperties) {
         threadPoolProperties.getExecutors().forEach(executor -> {
-            ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(
+            KittyThreadPoolExecutor threadPoolExecutor = new KittyThreadPoolExecutor(
                     executor.getCorePoolSize(),
                     executor.getMaximumPoolSize(),
                     executor.getKeepAliveTime(),
                     executor.getUnit(),
                     getBlockingQueue(executor.getQueueType(), executor.getQueueCapacity()),
                     new KittyThreadFactory(executor.getThreadPoolName()),
-                    getRejectedExecutionHandler(executor.getRejectedExecutionType()));
+                    getRejectedExecutionHandler(executor.getRejectedExecutionType(), executor.getThreadPoolName()), executor.getThreadPoolName());
 
             threadPoolExecutorMap.put(executor.getThreadPoolName(), threadPoolExecutor);
         });
     }
 
-    private RejectedExecutionHandler getRejectedExecutionHandler(String rejectedExecutionType) {
+    private RejectedExecutionHandler getRejectedExecutionHandler(String rejectedExecutionType, String threadPoolName) {
         if (!RejectedExecutionHandlerEnum.exists(rejectedExecutionType)) {
             throw new RuntimeException("拒绝策略不存在 " + rejectedExecutionType);
         }
@@ -86,7 +97,7 @@ public class DynamicThreadPoolManager {
         if (RejectedExecutionHandlerEnum.DISCARD_POLICY.getType().equals(rejectedExecutionType)) {
             return new ThreadPoolExecutor.DiscardPolicy();
         }
-        return new ThreadPoolExecutor.AbortPolicy();
+        return new KittyAbortPolicy(threadPoolName);
     }
 
     private BlockingQueue getBlockingQueue(String queueType, int queueCapacity) {
@@ -119,12 +130,20 @@ public class DynamicThreadPoolManager {
         });
     }
 
-    public ThreadPoolExecutor getThreadPoolExecutor(String threadPoolName) {
-        ThreadPoolExecutor threadPoolExecutor = threadPoolExecutorMap.get(threadPoolName);
+    public KittyThreadPoolExecutor getThreadPoolExecutor(String threadPoolName) {
+        KittyThreadPoolExecutor threadPoolExecutor = threadPoolExecutorMap.get(threadPoolName);
         if (threadPoolExecutor == null) {
             throw new NullPointerException("找不到线程池 " + threadPoolName);
         }
         return threadPoolExecutor;
+    }
+
+    public Map<String, KittyThreadPoolExecutor> getThreadPoolExecutorMap() {
+        return threadPoolExecutorMap;
+    }
+
+    public AtomicLong getRejectCount(String threadPoolName) {
+        return threadPoolExecutorRejectCountMap.get(threadPoolName);
     }
 
     static class KittyThreadFactory implements ThreadFactory {
@@ -154,4 +173,36 @@ public class DynamicThreadPoolManager {
             return t;
         }
     }
+
+    static class KittyAbortPolicy implements RejectedExecutionHandler {
+
+        private String threadPoolName;
+
+        /**
+         * Creates an {@code AbortPolicy}.
+         */
+        public KittyAbortPolicy() { }
+
+        public KittyAbortPolicy(String threadPoolName) {
+            this.threadPoolName = threadPoolName;
+        }
+
+        /**
+         * Always throws RejectedExecutionException.
+         *
+         * @param r the runnable task requested to be executed
+         * @param e the executor attempting to execute this task
+         * @throws RejectedExecutionException always
+         */
+        public void rejectedExecution(Runnable r, ThreadPoolExecutor e) {
+            AtomicLong atomicLong = threadPoolExecutorRejectCountMap.putIfAbsent(threadPoolName, new AtomicLong(1));
+            if (atomicLong != null) {
+                atomicLong.incrementAndGet();
+            }
+            throw new RejectedExecutionException("Task " + r.toString() +
+                    " rejected from " +
+                    e.toString());
+        }
+    }
+
 }
