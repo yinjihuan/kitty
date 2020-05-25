@@ -91,7 +91,16 @@
                 <artifactId>kitty-spring-cloud-starter-id</artifactId>
                 <version>${kitty.version}</version>
             </dependency>
-
+            <dependency>
+                <groupId>com.cxytiandi</groupId>
+                <artifactId>kitty-spring-cloud-starter-dynamic-thread-pool</artifactId>
+                <version>${kitty.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.cxytiandi</groupId>
+                <artifactId>kitty-spring-cloud-starter-sleuth</artifactId>
+                <version>${kitty.version}</version>
+            </dependency>
         </dependencies>
 
     </dependencyManagement>

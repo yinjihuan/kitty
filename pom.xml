@@ -20,6 +20,7 @@
         <module>kitty-gateway</module>
         <module>kitty-distributed</module>
         <module>kitty-mq</module>
+        <module>kitty-dynamic-thread-pool</module>
     </modules>
 
     <properties>
@@ -149,6 +150,12 @@
             <dependency>
                 <groupId>com.cxytiandi</groupId>
                 <artifactId>kitty-distributed-id</artifactId>
+                <version>${kitty.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.cxytiandi</groupId>
+                <artifactId>kitty-dynamic-thread-pool</artifactId>
                 <version>${kitty.version}</version>
             </dependency>
 
