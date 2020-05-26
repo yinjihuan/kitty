@@ -50,6 +50,7 @@ public class ThreadPoolEndpoint {
             pool.put("largestPoolSize", executor.getLargestPoolSize());
             pool.put("taskCount", executor.getTaskCount());
             pool.put("rejectCount", rejectCount == null ? 0 : rejectCount.get());
+            pool.put("waitTaskCount", executor.getQueue().size());
             threadPools.add(pool);
         });
 

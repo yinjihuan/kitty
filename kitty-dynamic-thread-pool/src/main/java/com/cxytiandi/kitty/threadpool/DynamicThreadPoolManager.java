@@ -146,6 +146,10 @@ public class DynamicThreadPoolManager {
         return threadPoolExecutorRejectCountMap.get(threadPoolName);
     }
 
+    public void clearRejectCount(String threadPoolName) {
+        threadPoolExecutorRejectCountMap.remove(threadPoolName);
+    }
+
     static class KittyThreadFactory implements ThreadFactory {
         private static final AtomicInteger poolNumber = new AtomicInteger(1);
         private final ThreadGroup group;

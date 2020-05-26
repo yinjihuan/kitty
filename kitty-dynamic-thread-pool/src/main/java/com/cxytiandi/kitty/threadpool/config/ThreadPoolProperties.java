@@ -64,6 +64,6 @@ public class ThreadPoolProperties {
     /**
      * 队列容量阀值，超过此值告警
      */
-    private int queueCapacityThreshold;
+    private int queueCapacityThreshold = queueCapacity;
 
 }
