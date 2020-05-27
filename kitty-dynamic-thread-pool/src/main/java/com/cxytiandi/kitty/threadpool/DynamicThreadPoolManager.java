@@ -11,7 +11,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import javax.annotation.PostConstruct;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.ServiceLoader;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -95,9 +97,6 @@ public class DynamicThreadPoolManager {
      * @return
      */
     private RejectedExecutionHandler getRejectedExecutionHandler(String rejectedExecutionType, String threadPoolName) {
-        if (!RejectedExecutionHandlerEnum.exists(rejectedExecutionType)) {
-            throw new RuntimeException("拒绝策略不存在 " + rejectedExecutionType);
-        }
         if (RejectedExecutionHandlerEnum.CALLER_RUNS_POLICY.getType().equals(rejectedExecutionType)) {
             return new ThreadPoolExecutor.CallerRunsPolicy();
         }
@@ -106,6 +105,15 @@ public class DynamicThreadPoolManager {
         }
         if (RejectedExecutionHandlerEnum.DISCARD_POLICY.getType().equals(rejectedExecutionType)) {
             return new ThreadPoolExecutor.DiscardPolicy();
+        }
+        ServiceLoader<RejectedExecutionHandler> serviceLoader = ServiceLoader.load(RejectedExecutionHandler.class);
+        Iterator<RejectedExecutionHandler> iterator = serviceLoader.iterator();
+        while (iterator.hasNext()) {
+            RejectedExecutionHandler rejectedExecutionHandler = iterator.next();
+            String rejectedExecutionHandlerName = rejectedExecutionHandler.getClass().getSimpleName();
+            if (rejectedExecutionType.equals(rejectedExecutionHandlerName)) {
+                return rejectedExecutionHandler;
+            }
         }
         return new KittyAbortPolicy(threadPoolName);
     }
