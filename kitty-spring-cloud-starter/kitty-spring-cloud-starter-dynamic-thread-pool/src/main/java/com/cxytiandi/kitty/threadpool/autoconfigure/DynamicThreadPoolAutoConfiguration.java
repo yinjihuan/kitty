@@ -1,6 +1,6 @@
 package com.cxytiandi.kitty.threadpool.autoconfigure;
 
-import com.cxytiandi.kitty.threadpool.DynamicThreadPoolAlarm;
+import com.cxytiandi.kitty.threadpool.alarm.DynamicThreadPoolAlarm;
 import com.cxytiandi.kitty.threadpool.DynamicThreadPoolManager;
 import com.cxytiandi.kitty.threadpool.config.DynamicThreadPoolProperties;
 import com.cxytiandi.kitty.threadpool.endpoint.ThreadPoolEndpoint;
@@ -24,7 +24,7 @@ public class DynamicThreadPoolAutoConfiguration {
     }
 
     @Bean
-    @ConditionalOnProperty(value = "kitty.threadpools.enabled", matchIfMissing = true)
+    @ConditionalOnProperty(value = "kitty.threadpools.alarm.enabled", matchIfMissing = true)
     public DynamicThreadPoolAlarm dynamicThreadPoolAlarm() {
         return new DynamicThreadPoolAlarm();
     }

@@ -1,9 +1,11 @@
-package com.cxytiandi.kitty.threadpool;
+package com.cxytiandi.kitty.threadpool.alarm;
 
 import com.cxytiandi.kitty.common.alarm.AlarmManager;
 import com.cxytiandi.kitty.common.alarm.AlarmMessage;
 import com.cxytiandi.kitty.common.alarm.AlarmTypeEnum;
 import com.cxytiandi.kitty.common.json.JsonUtils;
+import com.cxytiandi.kitty.threadpool.DynamicThreadPoolManager;
+import com.cxytiandi.kitty.threadpool.KittyThreadPoolExecutor;
 import com.cxytiandi.kitty.threadpool.config.DynamicThreadPoolProperties;
 import com.cxytiandi.kitty.threadpool.config.ThreadPoolProperties;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,8 +34,20 @@ public class DynamicThreadPoolAlarm {
     @Autowired
     private DynamicThreadPoolProperties dynamicThreadPoolProperties;
 
+    @Autowired(required = false)
+    private ThreadPoolAlarmNotify threadPoolAlarmNotify;
+
+    /**
+     * 应用名称，告警用到
+     */
     @Value("${spring.application.name:unknown}")
     private String applicationName;
+
+    /**
+     * 是否使用默认告警
+     */
+    @Value("${kitty.threadpools.alarm.default:true}")
+    private boolean useDefaultAlarm;
 
     @PostConstruct
     public void init() {
@@ -67,33 +81,49 @@ public class DynamicThreadPoolAlarm {
     }
 
     private void sendRejectAlarmMessage(long rejectCount, ThreadPoolProperties prop) {
-        AlarmManager.sendAlarmMessage(
-                AlarmMessage.builder()
-                        .alarmName("rejectCount")
-                        .alarmType(getAlarmType())
-                        .apiUrl(dynamicThreadPoolProperties.getAlarmApiUrl())
-                        .message(getRejectCountMessage(rejectCount, prop))
-                        .accessToken(dynamicThreadPoolProperties.getAccessToken())
-                        .secret(dynamicThreadPoolProperties.getSecret())
-                        .alarmTimeInterval(dynamicThreadPoolProperties.getAlarmTimeInterval())
-                        .build());
+        AlarmMessage alarmMessage = AlarmMessage.builder()
+                .alarmName("rejectCount")
+                .alarmType(getAlarmType())
+                .apiUrl(dynamicThreadPoolProperties.getAlarmApiUrl())
+                .message(getRejectCountMessage(rejectCount, prop))
+                .accessToken(dynamicThreadPoolProperties.getAccessToken())
+                .secret(dynamicThreadPoolProperties.getSecret())
+                .alarmTimeInterval(dynamicThreadPoolProperties.getAlarmTimeInterval())
+                .build();
+
+        if (useDefaultAlarm) {
+            AlarmManager.sendAlarmMessage(alarmMessage);
+        }
+
+        alarmNotify(alarmMessage);
     }
 
     private void sendQueueCapacityThresholdAlarmMessage(ThreadPoolProperties prop, int taskCount) {
-        AlarmManager.sendAlarmMessage(
-                AlarmMessage.builder()
-                        .alarmName("queueCapacityThreshold")
-                        .alarmType(getAlarmType())
-                        .apiUrl(dynamicThreadPoolProperties.getAlarmApiUrl())
-                        .message(getQueueCapacityThresholdMessage(prop, taskCount))
-                        .accessToken(dynamicThreadPoolProperties.getAccessToken())
-                        .secret(dynamicThreadPoolProperties.getSecret())
-                        .alarmTimeInterval(dynamicThreadPoolProperties.getAlarmTimeInterval())
-                        .build());
+        AlarmMessage alarmMessage = AlarmMessage.builder()
+                .alarmName("queueCapacityThreshold")
+                .alarmType(getAlarmType())
+                .apiUrl(dynamicThreadPoolProperties.getAlarmApiUrl())
+                .message(getQueueCapacityThresholdMessage(prop, taskCount))
+                .accessToken(dynamicThreadPoolProperties.getAccessToken())
+                .secret(dynamicThreadPoolProperties.getSecret())
+                .alarmTimeInterval(dynamicThreadPoolProperties.getAlarmTimeInterval())
+                .build();
+
+        if (useDefaultAlarm) {
+            AlarmManager.sendAlarmMessage(alarmMessage);
+        }
+
+        alarmNotify(alarmMessage);
+    }
+
+    private void alarmNotify(AlarmMessage alarmMessage) {
+        if (threadPoolAlarmNotify != null) {
+            threadPoolAlarmNotify.alarmNotify(alarmMessage);
+        }
     }
 
     private String getQueueCapacityThresholdMessage(ThreadPoolProperties prop, int taskCount) {
-        return getALarmMessage("线程池出现任务堆积情况,队列容量:" + prop.getQueueCapacity() + ",任务数量:" + taskCount , prop);
+        return getALarmMessage("线程池出现任务堆积情况,队列容量:" + prop.getQueueCapacity() + ",等待执行任务数量:" + taskCount , prop);
     }
 
     private String getRejectCountMessage(long rejectCount, ThreadPoolProperties prop) {
