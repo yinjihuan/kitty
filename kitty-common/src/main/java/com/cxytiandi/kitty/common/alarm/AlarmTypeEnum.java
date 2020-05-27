@@ -1,6 +1,8 @@
 package com.cxytiandi.kitty.common.alarm;
 
 /**
+ * 告警类型
+ *
  * @作者 尹吉欢
  * @个人微信 jihuan900
  * @微信公众号 猿天地

@@ -15,6 +15,9 @@ public enum QueueTypeEnum {
     LINKED_BLOCKING_QUEUE("LinkedBlockingQueue"),
     SYNCHRONOUS_QUEUE("SynchronousQueue"),
     ARRAY_BLOCKING_QUEUE("ArrayBlockingQueue"),
+    DELAY_QUEUE("DelayQueue"),
+    LINKED_TRANSFER_DEQUE("LinkedTransferQueue"),
+    LINKED_BLOCKING_DEQUE("LinkedBlockingDeque"),
     PRIORITY_BLOCKING_QUEUE("PriorityBlockingQueue");
 
     QueueTypeEnum(String type) {

@@ -69,6 +69,10 @@ public class DynamicThreadPoolManager {
         }
     }
 
+    /**
+     * 创建线程池
+     * @param threadPoolProperties
+     */
     private void createThreadPoolExecutor(DynamicThreadPoolProperties threadPoolProperties) {
         threadPoolProperties.getExecutors().forEach(executor -> {
             KittyThreadPoolExecutor threadPoolExecutor = new KittyThreadPoolExecutor(
@@ -76,7 +80,7 @@ public class DynamicThreadPoolManager {
                     executor.getMaximumPoolSize(),
                     executor.getKeepAliveTime(),
                     executor.getUnit(),
-                    getBlockingQueue(executor.getQueueType(), executor.getQueueCapacity()),
+                    getBlockingQueue(executor.getQueueType(), executor.getQueueCapacity(), executor.isFair()),
                     new KittyThreadFactory(executor.getThreadPoolName()),
                     getRejectedExecutionHandler(executor.getRejectedExecutionType(), executor.getThreadPoolName()), executor.getThreadPoolName());
 
@@ -84,6 +88,12 @@ public class DynamicThreadPoolManager {
         });
     }
 
+    /**
+     * 获取拒绝策略
+     * @param rejectedExecutionType
+     * @param threadPoolName
+     * @return
+     */
     private RejectedExecutionHandler getRejectedExecutionHandler(String rejectedExecutionType, String threadPoolName) {
         if (!RejectedExecutionHandlerEnum.exists(rejectedExecutionType)) {
             throw new RuntimeException("拒绝策略不存在 " + rejectedExecutionType);
@@ -100,7 +110,14 @@ public class DynamicThreadPoolManager {
         return new KittyAbortPolicy(threadPoolName);
     }
 
-    private BlockingQueue getBlockingQueue(String queueType, int queueCapacity) {
+    /**
+     * 获取阻塞队列
+     * @param queueType
+     * @param queueCapacity
+     * @param fair
+     * @return
+     */
+    private BlockingQueue getBlockingQueue(String queueType, int queueCapacity, boolean fair) {
         if (!QueueTypeEnum.exists(queueType)) {
             throw new RuntimeException("队列不存在 " + queueType);
         }
@@ -108,14 +125,26 @@ public class DynamicThreadPoolManager {
             return new ArrayBlockingQueue(queueCapacity);
         }
         if (QueueTypeEnum.SYNCHRONOUS_QUEUE.getType().equals(queueType)) {
-            return new SynchronousQueue(true);
+            return new SynchronousQueue(fair);
         }
         if (QueueTypeEnum.PRIORITY_BLOCKING_QUEUE.getType().equals(queueType)) {
             return new PriorityBlockingQueue(queueCapacity);
         }
-        return new LinkedBlockingQueue(queueCapacity);
+        if (QueueTypeEnum.DELAY_QUEUE.getType().equals(queueType)) {
+            return new DelayQueue();
+        }
+        if (QueueTypeEnum.LINKED_BLOCKING_DEQUE.getType().equals(queueType)) {
+            return new LinkedBlockingDeque(queueCapacity);
+        }
+        if (QueueTypeEnum.LINKED_TRANSFER_DEQUE.getType().equals(queueType)) {
+            return new LinkedTransferQueue();
+        }
+        return new ResizableCapacityLinkedBlockIngQueue(queueCapacity);
     }
 
+    /**
+     * 刷新线程池
+     */
     private void refreshThreadPoolExecutor() {
         try {
             // 等待配置刷新完成
@@ -127,6 +156,12 @@ public class DynamicThreadPoolManager {
             ThreadPoolExecutor threadPoolExecutor = threadPoolExecutorMap.get(executor.getThreadPoolName());
             threadPoolExecutor.setCorePoolSize(executor.getCorePoolSize());
             threadPoolExecutor.setMaximumPoolSize(executor.getMaximumPoolSize());
+            threadPoolExecutor.setKeepAliveTime(executor.getKeepAliveTime(), executor.getUnit());
+            threadPoolExecutor.setRejectedExecutionHandler(getRejectedExecutionHandler(executor.getRejectedExecutionType(), executor.getThreadPoolName()));
+            BlockingQueue<Runnable> queue = threadPoolExecutor.getQueue();
+            if (queue instanceof ResizableCapacityLinkedBlockIngQueue) {
+                ((ResizableCapacityLinkedBlockIngQueue<Runnable>) queue).setCapacity(executor.getQueueCapacity());
+            }
         });
     }
 
@@ -136,10 +171,6 @@ public class DynamicThreadPoolManager {
             throw new NullPointerException("找不到线程池 " + threadPoolName);
         }
         return threadPoolExecutor;
-    }
-
-    public Map<String, KittyThreadPoolExecutor> getThreadPoolExecutorMap() {
-        return threadPoolExecutorMap;
     }
 
     public AtomicLong getRejectCount(String threadPoolName) {
@@ -203,9 +234,7 @@ public class DynamicThreadPoolManager {
             if (atomicLong != null) {
                 atomicLong.incrementAndGet();
             }
-            throw new RejectedExecutionException("Task " + r.toString() +
-                    " rejected from " +
-                    e.toString());
+            throw new RejectedExecutionException("Task " + r.toString() + " rejected from " + e.toString());
         }
     }
 

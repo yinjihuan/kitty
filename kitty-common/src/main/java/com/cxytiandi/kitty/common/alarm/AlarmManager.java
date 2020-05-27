@@ -8,6 +8,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
+ * 异常告警
+ *
  * @作者 尹吉欢
  * @个人微信 jihuan900
  * @微信公众号 猿天地

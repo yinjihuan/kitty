@@ -4,6 +4,8 @@ import lombok.Builder;
 import lombok.Data;
 
 /**
+ * 告警参数
+ *
  * @作者 尹吉欢
  * @个人微信 jihuan900
  * @微信公众号 猿天地

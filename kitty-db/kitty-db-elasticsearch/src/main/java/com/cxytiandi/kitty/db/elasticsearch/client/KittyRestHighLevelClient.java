@@ -100,6 +100,11 @@ public class KittyRestHighLevelClient {
         return searchByPage(searchRequest, entityClass, RequestOptions.DEFAULT);
     }
 
+    public <T> Page<T> searchByPage(int page, int pageSize, SearchRequest searchRequest, Class<T> entityClass) {
+        searchRequest.source().from(Page.page2Start(page, pageSize)).size(pageSize);
+        return searchByPage(searchRequest, entityClass, RequestOptions.DEFAULT);
+    }
+
     public <T> Page<T> searchByPage(SearchRequest searchRequest, Class<T> entityClass, RequestOptions options) {
         Map<String, Object> catData = new HashMap<>(1);
         catData.put(ElasticSearchConstant.SEARCH_REQUEST, searchRequest.toString());

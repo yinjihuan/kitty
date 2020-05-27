@@ -46,6 +46,11 @@ public class ThreadPoolProperties {
     private String queueType = QueueTypeEnum.LINKED_BLOCKING_QUEUE.getType();
 
     /**
+     * SynchronousQueue 是否公平策略
+     */
+    private boolean fair;
+
+    /**
      * 拒绝策略
      * @see RejectedExecutionHandlerEnum
      */
