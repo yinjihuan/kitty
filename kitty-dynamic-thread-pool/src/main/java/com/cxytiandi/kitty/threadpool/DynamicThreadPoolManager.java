@@ -5,8 +5,11 @@ import com.alibaba.nacos.api.config.ConfigService;
 import com.alibaba.nacos.api.config.listener.AbstractListener;
 import com.alibaba.nacos.api.exception.NacosException;
 import com.cxytiandi.kitty.threadpool.config.DynamicThreadPoolProperties;
+import com.cxytiandi.kitty.threadpool.config.ThreadPoolProperties;
 import com.cxytiandi.kitty.threadpool.enums.QueueTypeEnum;
 import com.cxytiandi.kitty.threadpool.enums.RejectedExecutionHandlerEnum;
+import com.dianping.cat.status.StatusExtension;
+import com.dianping.cat.status.StatusExtensionRegister;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import javax.annotation.PostConstruct;
@@ -87,6 +90,36 @@ public class DynamicThreadPoolManager {
                     getRejectedExecutionHandler(executor.getRejectedExecutionType(), executor.getThreadPoolName()), executor.getThreadPoolName());
 
             threadPoolExecutorMap.put(executor.getThreadPoolName(), threadPoolExecutor);
+
+        });
+    }
+
+    public void registerStatusExtension(ThreadPoolProperties prop, KittyThreadPoolExecutor executor) {
+        StatusExtensionRegister.getInstance().register(new StatusExtension() {
+            @Override
+            public String getId() {
+                return "thread.pool.info." + prop.getThreadPoolName();
+            }
+
+            @Override
+            public String getDescription() {
+                return "线程池监控";
+            }
+
+            @Override
+            public Map<String, String> getProperties() {
+                AtomicLong rejectCount = getRejectCount(prop.getThreadPoolName());
+
+                Map<String, String> pool = new HashMap<>();
+
+                pool.put("activeCount", String.valueOf(executor.getActiveCount()));
+                pool.put("completedTaskCount", String.valueOf(executor.getCompletedTaskCount()));
+                pool.put("largestPoolSize", String.valueOf(executor.getLargestPoolSize()));
+                pool.put("taskCount", String.valueOf(executor.getTaskCount()));
+                pool.put("rejectCount", String.valueOf(rejectCount == null ? 0 : rejectCount.get()));
+                pool.put("waitTaskCount", String.valueOf(executor.getQueue().size()));
+                return pool;
+            }
         });
     }
 

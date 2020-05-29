@@ -55,8 +55,10 @@ public class DynamicThreadPoolAlarm {
             while (true) {
                 dynamicThreadPoolProperties.getExecutors().stream().forEach(prop -> {
                     String threadPoolName = prop.getThreadPoolName();
-
                     KittyThreadPoolExecutor threadPoolExecutor = dynamicThreadPoolManager.getThreadPoolExecutor(threadPoolName);
+
+                    dynamicThreadPoolManager.registerStatusExtension(prop, threadPoolExecutor);
+
                     int queueCapacityThreshold = prop.getQueueCapacityThreshold();
                     int taskCount = threadPoolExecutor.getQueue().size();
                     if (taskCount > queueCapacityThreshold) {
