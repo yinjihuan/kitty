@@ -180,6 +180,9 @@ public class IdempotentParamFilter implements Filter {
      * @return
      */
     private String getIdempotentCookieValue(Cookie[] cookies) {
+        if (cookies == null) {
+            return DEFAULT_EMPTY_STR;
+        }
         return Arrays.asList(cookies).stream().map(c -> c.getName() + c.getValue()).collect(Collectors.joining());
     }
 
