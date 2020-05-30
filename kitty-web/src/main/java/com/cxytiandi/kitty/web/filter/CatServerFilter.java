@@ -55,6 +55,7 @@ public class CatServerFilter implements Filter {
         } catch (Exception e) {
             filterTransaction.setStatus(e);
             Cat.logError(e);
+            throw e;
         } finally {
             filterTransaction.complete();
         }

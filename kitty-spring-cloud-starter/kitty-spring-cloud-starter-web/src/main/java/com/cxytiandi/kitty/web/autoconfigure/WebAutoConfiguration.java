@@ -79,11 +79,14 @@ public class WebAutoConfiguration {
     @Bean
     public RestTemplateRequestInterceptor restTemplateRequestInterceptor() {
         RestTemplateRequestInterceptor restTemplateRequestInterceptor = new RestTemplateRequestInterceptor();
-        restTemplates.stream().forEach(restTemplate -> {
-            List<ClientHttpRequestInterceptor> list = new ArrayList<>(restTemplate.getInterceptors());
-            list.add(restTemplateRequestInterceptor);
-            restTemplate.setInterceptors(list);
-        });
+        if (restTemplates != null) {
+            restTemplates.stream().forEach(restTemplate -> {
+                List<ClientHttpRequestInterceptor> list = new ArrayList<>(restTemplate.getInterceptors());
+                list.add(restTemplateRequestInterceptor);
+                restTemplate.setInterceptors(list);
+            });
+        }
+
         return restTemplateRequestInterceptor;
     }
 
