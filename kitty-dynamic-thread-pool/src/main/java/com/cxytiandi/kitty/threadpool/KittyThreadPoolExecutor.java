@@ -1,9 +1,15 @@
 package com.cxytiandi.kitty.threadpool;
 
-import com.cxytiandi.kitty.common.cat.CatTransactionManager;
+import com.dianping.cat.Cat;
+import com.dianping.cat.message.Message;
+import com.dianping.cat.message.Transaction;
+
+import java.util.Map;
 import java.util.concurrent.*;
 
 /**
+ * 自定义ThreadPoolExecutor
+ *
  * @作者 尹吉欢
  * @个人微信 jihuan900
  * @微信公众号 猿天地
@@ -25,6 +31,10 @@ public class KittyThreadPoolExecutor extends ThreadPoolExecutor {
      */
     private static final RejectedExecutionHandler defaultHandler = new AbortPolicy();
 
+    private Map<String, Transaction> transactionMap = new ConcurrentHashMap<>();
+
+    private Map<String, String> runnableNameMap = new ConcurrentHashMap<>();
+
     public KittyThreadPoolExecutor(int corePoolSize, int maximumPoolSize, long keepAliveTime, TimeUnit unit, BlockingQueue<Runnable> workQueue) {
         super(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue);
     }
@@ -42,50 +52,64 @@ public class KittyThreadPoolExecutor extends ThreadPoolExecutor {
 
     @Override
     public void execute(Runnable command) {
-        CatTransactionManager.newTransaction(() -> {
-            super.execute(command);
-        }, threadPoolName, defaultTaskName);
+        runnableNameMap.putIfAbsent(command.getClass().getSimpleName(), defaultTaskName);
+        super.execute(command);
     }
 
     public void execute(Runnable command, String taskName) {
-        CatTransactionManager.newTransaction(() -> {
-            super.execute(command);
-        }, threadPoolName, taskName);
+        runnableNameMap.putIfAbsent(command.getClass().getSimpleName(), taskName);
+        super.execute(command);
     }
 
     public Future<?> submit(Runnable task, String taskName) {
-        return CatTransactionManager.newTransaction(() -> {
-            return super.submit(task);
-        }, threadPoolName, taskName);
+        runnableNameMap.putIfAbsent(task.getClass().getSimpleName(), taskName);
+        return super.submit(task);
     }
 
     public <T> Future<T> submit(Callable<T> task, String taskName) {
-        return CatTransactionManager.newTransaction(() -> {
-            return super.submit(task);
-        }, threadPoolName, taskName);
+        runnableNameMap.putIfAbsent(task.getClass().getSimpleName(), taskName);
+        return super.submit(task);
     }
 
     public <T> Future<T> submit(Runnable task, T result, String taskName) {
-        return CatTransactionManager.newTransaction(() -> {
-            return super.submit(task, result);
-        }, threadPoolName, taskName);
+        runnableNameMap.putIfAbsent(task.getClass().getSimpleName(), taskName);
+        return super.submit(task, result);
     }
 
     public Future<?> submit(Runnable task) {
-        return CatTransactionManager.newTransaction(() -> {
-            return super.submit(task);
-        }, threadPoolName, defaultTaskName);
+        runnableNameMap.putIfAbsent(task.getClass().getSimpleName(), defaultTaskName);
+        return super.submit(task);
     }
 
     public <T> Future<T> submit(Callable<T> task) {
-        return CatTransactionManager.newTransaction(() -> {
-            return super.submit(task);
-        }, threadPoolName, defaultTaskName);
+        runnableNameMap.putIfAbsent(task.getClass().getSimpleName(), defaultTaskName);
+        return super.submit(task);
     }
 
     public <T> Future<T> submit(Runnable task, T result) {
-        return CatTransactionManager.newTransaction(() -> {
-            return super.submit(task, result);
-        }, threadPoolName, defaultTaskName);
+        runnableNameMap.putIfAbsent(task.getClass().getSimpleName(), defaultTaskName);
+        return super.submit(task, result);
+    }
+
+    @Override
+    protected void beforeExecute(Thread t, Runnable r) {
+        String threadName = Thread.currentThread().getName();
+        Transaction transaction = Cat.newTransaction(threadPoolName, runnableNameMap.get(r.getClass().getSimpleName()));
+        transactionMap.put(threadName, transaction);
+        super.beforeExecute(t, r);
+    }
+
+    @Override
+    protected void afterExecute(Runnable r, Throwable t) {
+        super.afterExecute(r, t);
+        String threadName = Thread.currentThread().getName();
+        Transaction transaction = transactionMap.get(threadName);
+        transaction.setStatus(Message.SUCCESS);
+        if (t != null) {
+            Cat.logError(t);
+            transaction.setStatus(t);
+        }
+        transaction.complete();
+        transactionMap.remove(threadName);
     }
 }
