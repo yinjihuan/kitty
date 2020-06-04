@@ -7,6 +7,7 @@ import com.dianping.cat.Cat;
 import com.dianping.cat.CatConstants;
 import com.dianping.cat.message.Message;
 import com.dianping.cat.message.Transaction;
+import org.springframework.beans.factory.annotation.Value;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
@@ -23,6 +24,13 @@ import java.io.IOException;
  * @时间 2020-02-18 21:06
  */
 public class CatServerFilter implements Filter {
+
+    @Value("${spring.application.name:unknown}")
+    private String applicationName;
+
+    public CatServerFilter(String applicationName) {
+        this.applicationName = applicationName;
+    }
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
@@ -48,7 +56,7 @@ public class CatServerFilter implements Filter {
 
         try {
             Cat.logEvent(CatConstantsExt.TYPE_URL_METHOD, request.getMethod(), Message.SUCCESS, request.getRequestURL().toString());
-            Cat.logEvent(CatConstantsExt.TYPE_URL_CLIENT, request.getRemoteHost());
+            Cat.logEvent(CatConstantsExt.TYPE_URL_CLIENT, request.getRemoteHost() + "【" + applicationName + "】");
 
             filterChain.doFilter(servletRequest, servletResponse);
             filterTransaction.setSuccessStatus();
