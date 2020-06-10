@@ -101,6 +101,11 @@
                 <artifactId>kitty-spring-cloud-starter-sleuth</artifactId>
                 <version>${kitty.version}</version>
             </dependency>
+            <dependency>
+                <groupId>com.cxytiandi</groupId>
+                <artifactId>kitty-spring-cloud-starter-rocketmq-aliyun</artifactId>
+                <version>${kitty.version}</version>
+            </dependency>
         </dependencies>
 
     </dependencyManagement>
