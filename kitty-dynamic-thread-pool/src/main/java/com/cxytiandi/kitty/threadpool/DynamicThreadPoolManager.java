@@ -1,6 +1,7 @@
 package com.cxytiandi.kitty.threadpool;
 
 import com.alibaba.cloud.nacos.NacosConfigProperties;
+import com.alibaba.nacos.api.annotation.NacosInjected;
 import com.alibaba.nacos.api.config.ConfigService;
 import com.alibaba.nacos.api.config.listener.AbstractListener;
 import com.alibaba.nacos.api.exception.NacosException;
@@ -12,6 +13,8 @@ import com.dianping.cat.status.StatusExtension;
 import com.dianping.cat.status.StatusExtensionRegister;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+
 import javax.annotation.PostConstruct;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -37,7 +40,7 @@ public class DynamicThreadPoolManager {
     @Autowired
     private DynamicThreadPoolProperties dynamicThreadPoolProperties;
 
-    @Autowired
+    @Autowired(required = false)
     private NacosConfigProperties nacosConfigProperties;
 
     /**
@@ -50,6 +53,12 @@ public class DynamicThreadPoolManager {
      */
     private static Map<String, AtomicLong> threadPoolExecutorRejectCountMap = new ConcurrentHashMap<>();
 
+    @NacosInjected
+    private ConfigService bootConfigService;
+
+    @Value("${spring.cloud.nacos.config.enabled:true}")
+    private Boolean springCloudConfigEnable;
+
     @PostConstruct
     public void init() {
         createThreadPoolExecutor(dynamicThreadPoolProperties);
@@ -60,7 +69,15 @@ public class DynamicThreadPoolManager {
      * 监听配置修改，spring-cloud-alibaba 2.1.0版本不支持@NacosConfigListener的监听
      */
     public void initConfigUpdateListener(DynamicThreadPoolProperties dynamicThreadPoolProperties) {
-        ConfigService configService = nacosConfigProperties.configServiceInstance();
+        ConfigService configService = null;
+        if (springCloudConfigEnable) {
+            configService = nacosConfigProperties.configServiceInstance();
+        }
+
+        if (configService == null) {
+            configService = bootConfigService;
+        }
+
         try {
             configService.addListener(dynamicThreadPoolProperties.getNacosDataId(), dynamicThreadPoolProperties.getNacosGroup(), new AbstractListener() {
                 @Override
