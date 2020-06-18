@@ -42,6 +42,9 @@ public class WebAutoConfiguration {
     @Autowired(required = false)
     private List<RestTemplate> restTemplates;
 
+    @Value("${spring.application.name:unknown}")
+    private String applicationName;
+
     /**
      * 配置Cat Filter
      * @return
@@ -49,7 +52,7 @@ public class WebAutoConfiguration {
     @Bean
     public FilterRegistrationBean catFilter() {
         FilterRegistrationBean registration = new FilterRegistrationBean();
-        CatServerFilter filter = new CatServerFilter();
+        CatServerFilter filter = new CatServerFilter(applicationName);
         registration.setFilter(filter);
         registration.addUrlPatterns("/*");
         registration.setName("cat-filter");
