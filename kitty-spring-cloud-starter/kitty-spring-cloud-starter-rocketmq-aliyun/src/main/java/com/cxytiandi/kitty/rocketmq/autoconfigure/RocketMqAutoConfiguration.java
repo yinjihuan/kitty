@@ -6,7 +6,8 @@ import com.aliyun.openservices.ons.api.bean.*;
 import com.aliyun.openservices.ons.api.order.MessageOrderListener;
 import com.aliyun.openservices.shade.com.google.common.collect.Maps;
 import com.cxytiandi.kitty.rocketmq.RocketMQMessageListener;
-import com.cxytiandi.kitty.rocketmq.RocketMqProducer;
+import com.cxytiandi.kitty.rocketmq.RocketMQProducer;
+import com.cxytiandi.kitty.rocketmq.TransactionMQService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -57,8 +58,14 @@ public class RocketMqAutoConfiguration {
     }
 
     @Bean
-    public RocketMqProducer rocketMqProducer(ProducerBean producerBean, OrderProducerBean orderProducerBean) {
-        return new RocketMqProducer(producerBean, orderProducerBean);
+    public TransactionMQService transactionMQService() {
+        return new TransactionMQService();
+    }
+
+    @Bean
+    public RocketMQProducer rocketMqProducer(ProducerBean producerBean, OrderProducerBean orderProducerBean,
+                                             TransactionMQService transactionMQService) {
+        return new RocketMQProducer(producerBean, orderProducerBean, transactionMQService);
     }
 
     @Bean(initMethod = "start", destroyMethod = "shutdown")
