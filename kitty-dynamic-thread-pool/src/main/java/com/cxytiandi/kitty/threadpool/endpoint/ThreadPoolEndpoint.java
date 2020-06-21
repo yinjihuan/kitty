@@ -1,6 +1,6 @@
 package com.cxytiandi.kitty.threadpool.endpoint;
 
-import com.alibaba.fastjson.JSONObject;
+import com.cxytiandi.kitty.common.json.JsonUtils;
 import com.cxytiandi.kitty.threadpool.DynamicThreadPoolManager;
 import com.cxytiandi.kitty.threadpool.config.DynamicThreadPoolProperties;
 import com.cxytiandi.kitty.threadpool.KittyThreadPoolExecutor;
@@ -43,7 +43,8 @@ public class ThreadPoolEndpoint {
             AtomicLong rejectCount = dynamicThreadPoolManager.getRejectCount(prop.getThreadPoolName());
 
             Map<String, Object> pool = new HashMap<>();
-            Map config = JSONObject.parseObject(JSONObject.toJSONString(prop), Map.class);
+
+            Map config = JsonUtils.toBean(Map.class, JsonUtils.toJson(prop));
             pool.putAll(config);
             pool.put("activeCount", executor.getActiveCount());
             pool.put("completedTaskCount", executor.getCompletedTaskCount());
