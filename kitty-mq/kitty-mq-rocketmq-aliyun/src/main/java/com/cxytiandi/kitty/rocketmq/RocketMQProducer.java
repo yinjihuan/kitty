@@ -7,6 +7,7 @@ import com.aliyun.openservices.ons.api.bean.OrderProducerBean;
 import com.aliyun.openservices.ons.api.bean.ProducerBean;
 import com.aliyun.openservices.shade.org.apache.commons.lang3.StringUtils;
 import com.cxytiandi.kitty.common.json.JsonUtils;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.concurrent.TimeUnit;
 
@@ -20,6 +21,7 @@ import java.util.concurrent.TimeUnit;
  * @作者介绍 http://cxytiandi.com/about
  * @时间 2020-06-07 16:02
  */
+@Slf4j
 public class RocketMQProducer {
 
     private ProducerBean producerBean;
@@ -33,7 +35,14 @@ public class RocketMQProducer {
     }
 
     public SendResult sendMessage(Message message) {
-        return producerBean.send(message);
+        try {
+            SendResult result = producerBean.send(message);
+            return result;
+        } catch (Exception e) {
+            log.error("sendMessage error", e);
+            sendTransactionMessage(message);
+        }
+        return new SendResult();
     }
 
     public SendResult sendMessage(String topic, String tag, String body) {
@@ -74,7 +83,13 @@ public class RocketMQProducer {
     }
 
     public SendResult sendOrderMessage(Message message, String shardingKey) {
-        return orderProducerBean.send(message, shardingKey);
+        try {
+            return orderProducerBean.send(message, shardingKey);
+        } catch (Exception e) {
+            log.error("sendOrderMessage error", e);
+            sendTransactionOrderMessage(message, shardingKey);
+        }
+        return new SendResult();
     }
 
     public SendResult sendOrderMessage(Message message) {
