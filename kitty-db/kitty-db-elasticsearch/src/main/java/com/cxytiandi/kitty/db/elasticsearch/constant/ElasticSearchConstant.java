@@ -26,6 +26,8 @@ public class ElasticSearchConstant {
 
     public static final String UPDATE_REQUEST = "updateRequest";
 
+    public static final String UPDATE_BY_QUERY_REQUEST = "updateByQueryRequest";
+
     public static final String SEARCH_REQUEST = "searchRequest";
 
     public static final String DELETE_REQUEST = "deleteRequest";

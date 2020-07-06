@@ -18,6 +18,10 @@ import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.client.core.CountRequest;
 import org.elasticsearch.client.core.CountResponse;
 import org.elasticsearch.common.xcontent.XContentType;
+import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.reindex.BulkByScrollResponse;
+import org.elasticsearch.index.reindex.UpdateByQueryRequest;
+import org.elasticsearch.script.Script;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -70,6 +74,49 @@ public class KittyRestHighLevelClient {
         UpdateRequest updateRequest = new UpdateRequest(index, type, id);
         updateRequest.doc(JsonUtils.toJson(document), XContentType.JSON);
         return update(updateRequest, options);
+    }
+
+    /**
+     * 适用于简单字段更新
+     * @param index
+     * @param query
+     * @param document
+     * @return
+     */
+    public BulkByScrollResponse updateByQuery(String index, QueryBuilder query, Map<String, Object> document) {
+        UpdateByQueryRequest updateByQueryRequest = new UpdateByQueryRequest(index);
+        updateByQueryRequest.setQuery(query);
+
+        StringBuilder script = new StringBuilder();
+        Set<String> keys = document.keySet();
+        for (String key : keys) {
+            String appendValue = "";
+            Object value = document.get(key);
+            if (value instanceof Number) {
+                appendValue = value.toString();
+            } else if (value instanceof String) {
+                appendValue = "'" + value.toString() + "'";
+            } else if (value instanceof List){
+                appendValue = JsonUtils.toJson(value);
+            } else {
+                appendValue = value.toString();
+            }
+            script.append("ctx._source.").append(key).append("=").append(appendValue).append(";");
+        }
+        updateByQueryRequest.setScript(new Script(script.toString()));
+        return updateByQuery(updateByQueryRequest, RequestOptions.DEFAULT);
+    }
+
+    public BulkByScrollResponse updateByQuery(UpdateByQueryRequest updateByQueryRequest, RequestOptions options) {
+        Map<String, Object> catData = new HashMap<>(1);
+        catData.put(ElasticSearchConstant.UPDATE_BY_QUERY_REQUEST, updateByQueryRequest.toString());
+        return CatTransactionManager.newTransaction(() -> {
+            try {
+                return restHighLevelClient.updateByQuery(updateByQueryRequest, options);
+            }catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }, ElasticSearchConstant.ES_CAT_TYPE, ElasticSearchConstant.UPDATE, catData);
     }
 
     private UpdateResponse doUpdate(UpdateRequest updateRequest, RequestOptions options) {
