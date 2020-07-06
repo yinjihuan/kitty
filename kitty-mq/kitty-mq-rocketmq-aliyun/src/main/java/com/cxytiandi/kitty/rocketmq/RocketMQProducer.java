@@ -119,49 +119,50 @@ public class RocketMQProducer {
 
     public void sendTransactionDelayMessage(Message message, long delayTime, TimeUnit delayTimeUnit) {
         message.setStartDeliverTime(System.currentTimeMillis() + delayTimeUnit.toMinutes(delayTime));
-        transactionMQService.saveTransactionMQMessage(message);
+        transactionMQService.saveTransactionMQMessage(message, RocketMessageTypeEnum.DELAY);
     }
 
     public void sendTransactionDelayMessage(String topic, String tag, String body, long delayTime, TimeUnit delayTimeUnit) {
-        transactionMQService.saveTransactionMQMessage(buildMessage(topic, tag, null, body, delayTime, delayTimeUnit));
+        transactionMQService.saveTransactionMQMessage(buildMessage(topic, tag, null, body, delayTime, delayTimeUnit), RocketMessageTypeEnum.DELAY);
     }
 
     public <T> void sendTransactionDelayMessage(String topic, String tag, Class<T> body, long delayTime, TimeUnit delayTimeUnit) {
-        transactionMQService.saveTransactionMQMessage(buildMessage(topic, tag, null, JsonUtils.toJson(body), delayTime, delayTimeUnit));
+        transactionMQService.saveTransactionMQMessage(buildMessage(topic, tag, null, JsonUtils.toJson(body), delayTime, delayTimeUnit), RocketMessageTypeEnum.DELAY);
     }
 
     public void sendTransactionDelayMessage(String topic, String tag, String key, String body, long delayTime, TimeUnit delayTimeUnit) {
-        transactionMQService.saveTransactionMQMessage(buildMessage(topic, tag, key, body, delayTime, delayTimeUnit));
+        transactionMQService.saveTransactionMQMessage(buildMessage(topic, tag, key, body, delayTime, delayTimeUnit), RocketMessageTypeEnum.DELAY);
     }
 
     public <T> void sendTransactionDelayMessage(String topic, String tag, String key, Class<T> body, long delayTime, TimeUnit delayTimeUnit) {
-        transactionMQService.saveTransactionMQMessage(buildMessage(topic, tag, key, JsonUtils.toJson(body), delayTime, delayTimeUnit));
+        transactionMQService.saveTransactionMQMessage(buildMessage(topic, tag, key, JsonUtils.toJson(body), delayTime, delayTimeUnit), RocketMessageTypeEnum.DELAY);
     }
 
     public void sendTransactionOrderMessage(Message message, String shardingKey) {
         message.setShardingKey(shardingKey);
-        transactionMQService.saveTransactionMQMessage(message);
+        transactionMQService.saveTransactionMQMessage(message, RocketMessageTypeEnum.ORDER);
     }
 
     public void sendTransactionOrderMessage(Message message) {
-        transactionMQService.saveTransactionMQMessage(message);
+        transactionMQService.saveTransactionMQMessage(message, RocketMessageTypeEnum.ORDER);
     }
 
     public void sendTransactionOrderMessage(String topic, String tag, String body, String shardingKey) {
-        transactionMQService.saveTransactionMQMessage(buildMessage(topic, tag, null, body, shardingKey));
+        transactionMQService.saveTransactionMQMessage(buildMessage(topic, tag, null, body, shardingKey), RocketMessageTypeEnum.ORDER);
     }
 
     public <T> void sendTransactionOrderMessage(String topic, String tag, Class<T> body, String shardingKey) {
-        transactionMQService.saveTransactionMQMessage(buildMessage(topic, tag, null, JsonUtils.toJson(body), shardingKey));
+        transactionMQService.saveTransactionMQMessage(buildMessage(topic, tag, null, JsonUtils.toJson(body), shardingKey), RocketMessageTypeEnum.ORDER);
     }
 
     public void sendTransactionOrderMessage(String topic, String tag, String key, String body, String shardingKey) {
-        transactionMQService.saveTransactionMQMessage(buildMessage(topic, tag, key, body, shardingKey));
+        transactionMQService.saveTransactionMQMessage(buildMessage(topic, tag, key, body, shardingKey), RocketMessageTypeEnum.ORDER);
     }
 
     public <T> void sendTransactionOrderMessage(String topic, String tag, String key, Class<T> body, String shardingKey) {
-        transactionMQService.saveTransactionMQMessage(buildMessage(topic, tag, key, JsonUtils.toJson(body), shardingKey));
+        transactionMQService.saveTransactionMQMessage(buildMessage(topic, tag, key, JsonUtils.toJson(body), shardingKey), RocketMessageTypeEnum.ORDER);
     }
+
 
     private Message buildMessage(String topic, String tag, String key, String body, long delayTime, TimeUnit delayTimeUnit) {
         Message message = new Message();

@@ -5,6 +5,8 @@ import com.aliyun.openservices.ons.api.PropertyKeyConst;
 import com.aliyun.openservices.ons.api.bean.*;
 import com.aliyun.openservices.ons.api.order.MessageOrderListener;
 import com.aliyun.openservices.shade.com.google.common.collect.Maps;
+import com.cxytiandi.kitty.lock.DistributedLock;
+import com.cxytiandi.kitty.rocketmq.ProcessMessageTask;
 import com.cxytiandi.kitty.rocketmq.RocketMQMessageListener;
 import com.cxytiandi.kitty.rocketmq.RocketMQProducer;
 import com.cxytiandi.kitty.rocketmq.TransactionMQService;
@@ -13,7 +15,9 @@ import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.jdbc.core.JdbcTemplate;
 
+import javax.sql.DataSource;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -39,6 +43,12 @@ public class RocketMqAutoConfiguration {
     @Autowired(required = false)
     private List<MessageOrderListener> messageOrderListeners = new ArrayList<>();
 
+    @Autowired
+    private DataSource dataSource;
+
+    @Autowired
+    private DistributedLock distributedLock;
+
     @Bean
     @ConditionalOnProperty(value = "kitty.rocketmq.aliyun.producer.enabled", matchIfMissing = true)
     public ProducerBean producerBean(RocketMqProperties rocketMqProperties) {
@@ -59,7 +69,7 @@ public class RocketMqAutoConfiguration {
 
     @Bean
     public TransactionMQService transactionMQService() {
-        return new TransactionMQService();
+        return new TransactionMQService(new JdbcTemplate(dataSource));
     }
 
     @Bean
@@ -103,6 +113,11 @@ public class RocketMqAutoConfiguration {
             }
         });
         return map;
+    }
+
+    @Bean
+    public ProcessMessageTask processMessageTask(TransactionMQService transactionMQService, RocketMQProducer rocketMQProducer) {
+        return new ProcessMessageTask(transactionMQService, rocketMQProducer, distributedLock);
     }
 
     private Subscription getSubscription(RocketMQMessageListener listener) {
