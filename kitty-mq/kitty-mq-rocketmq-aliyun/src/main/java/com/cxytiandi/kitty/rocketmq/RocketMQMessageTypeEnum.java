@@ -9,7 +9,7 @@ package com.cxytiandi.kitty.rocketmq;
  * @作者介绍 http://cxytiandi.com/about
  * @时间 2020-06-12 22:24
  */
-public enum RocketMessageTypeEnum {
+public enum RocketMQMessageTypeEnum {
 
     /**
      * 有序消息
@@ -24,7 +24,7 @@ public enum RocketMessageTypeEnum {
      */
     NORMAL("normal");
 
-    RocketMessageTypeEnum(String type) {
+    RocketMQMessageTypeEnum(String type) {
         this.type = type;
     };
 

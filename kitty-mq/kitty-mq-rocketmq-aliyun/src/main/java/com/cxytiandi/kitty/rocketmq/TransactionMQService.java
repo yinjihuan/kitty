@@ -2,7 +2,6 @@ package com.cxytiandi.kitty.rocketmq;
 
 import com.aliyun.openservices.ons.api.Message;
 import com.cxytiandi.kitty.common.json.JsonUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 
@@ -25,13 +24,13 @@ public class TransactionMQService {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public void saveTransactionMQMessage(Message message, RocketMessageTypeEnum rocketMessageEnum) {
+    public void saveTransactionMQMessage(Message message, RocketMQMessageTypeEnum rocketMessageEnum) {
         String sql = "insert into transaction_message(topic,tag,message_key,message_type,message) value(?,?,?,?,?)";
         jdbcTemplate.update(sql, message.getTopic(), message.getTag(), message.getKey(), rocketMessageEnum.getType(), JsonUtils.toJson(message));
     }
 
     public void saveTransactionMQMessage(Message message) {
-        saveTransactionMQMessage(message, RocketMessageTypeEnum.NORMAL);
+        saveTransactionMQMessage(message, RocketMQMessageTypeEnum.NORMAL);
     }
 
     public List<TransactionMessage> listWatingSendMessage(int size) {

@@ -6,6 +6,7 @@ import com.aliyun.openservices.ons.api.SendResult;
 import com.aliyun.openservices.ons.api.bean.OrderProducerBean;
 import com.aliyun.openservices.ons.api.bean.ProducerBean;
 import com.aliyun.openservices.shade.org.apache.commons.lang3.StringUtils;
+import com.cxytiandi.kitty.common.cat.CatTransactionManager;
 import com.cxytiandi.kitty.common.json.JsonUtils;
 import lombok.extern.slf4j.Slf4j;
 
@@ -35,22 +36,27 @@ public class RocketMQProducer {
     }
 
     public SendResult sendMessage(Message message) {
-        try {
-            SendResult result = producerBean.send(message);
-            return result;
-        } catch (Exception e) {
-            log.error("sendMessage error", e);
-            sendTransactionMessage(message);
-        }
-        return new SendResult();
+        return CatTransactionManager.newTransaction(() -> {
+            try {
+                SendResult result = producerBean.send(message);
+                return result;
+            } catch (Exception e) {
+                log.error("sendMessage error", e);
+                sendTransactionMessage(message);
+            }
+            return new SendResult();
+        }, RocketMQConstant.MQ_CAT_TYPE, RocketMQConstant.SEND_MESSAGE);
     }
 
     public SendResult sendMessage(Message message, boolean isSaveDb) {
         if (isSaveDb) {
             return sendMessage(message);
         }
-        SendResult result = producerBean.send(message);
-        return result;
+        return CatTransactionManager.newTransaction(() -> {
+            SendResult result = producerBean.send(message);
+            return result;
+        }, RocketMQConstant.MQ_CAT_TYPE, RocketMQConstant.SEND_MESSAGE);
+
     }
 
     public SendResult sendMessage(String topic, String tag, String body) {
@@ -91,20 +97,25 @@ public class RocketMQProducer {
     }
 
     public SendResult sendOrderMessage(Message message, String shardingKey) {
-        try {
-            return orderProducerBean.send(message, shardingKey);
-        } catch (Exception e) {
-            log.error("sendOrderMessage error", e);
-            sendTransactionOrderMessage(message, shardingKey);
-        }
-        return new SendResult();
+        return CatTransactionManager.newTransaction(() -> {
+            try {
+                return orderProducerBean.send(message, shardingKey);
+            } catch (Exception e) {
+                log.error("sendOrderMessage error", e);
+                sendTransactionOrderMessage(message, shardingKey);
+            }
+            return new SendResult();
+        }, RocketMQConstant.MQ_CAT_TYPE, RocketMQConstant.SEND_ORDER_MESSAGE);
     }
 
     public SendResult sendOrderMessage(Message message, String shardingKey, boolean isSaveDb) {
         if (isSaveDb) {
             return sendOrderMessage(message, shardingKey);
         }
-        return orderProducerBean.send(message, shardingKey);
+
+        return CatTransactionManager.newTransaction(() -> {
+            return orderProducerBean.send(message, shardingKey);
+        }, RocketMQConstant.MQ_CAT_TYPE, RocketMQConstant.SEND_ORDER_MESSAGE);
     }
 
     public SendResult sendOrderMessage(Message message) {
@@ -127,70 +138,78 @@ public class RocketMQProducer {
         return sendOrderMessage(buildMessage(topic, tag, key, JsonUtils.toJson(body), shardingKey));
     }
 
+    public void sendTransactionMessage(Message message, RocketMQMessageTypeEnum type) {
+        CatTransactionManager.newTransaction(() -> {
+            transactionMQService.saveTransactionMQMessage(message, type);
+        }, RocketMQConstant.MQ_CAT_TYPE, RocketMQConstant.SEND_TRANSACTION_MESSAGE);
+    }
+
     public void sendTransactionMessage(Message message) {
-        transactionMQService.saveTransactionMQMessage(message);
+        CatTransactionManager.newTransaction(() -> {
+            transactionMQService.saveTransactionMQMessage(message);
+        }, RocketMQConstant.MQ_CAT_TYPE, RocketMQConstant.SEND_TRANSACTION_MESSAGE);
     }
 
     public void sendTransactionMessage(String topic, String tag, String body) {
-        transactionMQService.saveTransactionMQMessage(buildMessage(topic, tag, null, body));
+        sendTransactionMessage(buildMessage(topic, tag, null, body));
     }
 
     public <T> void sendTransactionMessage(String topic, String tag, Class<T> body) {
-        transactionMQService.saveTransactionMQMessage(buildMessage(topic, tag, null, JsonUtils.toJson(body)));
+        sendTransactionMessage(buildMessage(topic, tag, null, JsonUtils.toJson(body)));
     }
 
     public void sendTransactionMessage(String topic, String tag, String key, String body) {
-        transactionMQService.saveTransactionMQMessage(buildMessage(topic, tag, key, body));
+        sendTransactionMessage(buildMessage(topic, tag, key, body));
     }
 
     public <T> void sendTransactionMessage(String topic, String tag, String key, Class<T> body) {
-        transactionMQService.saveTransactionMQMessage(buildMessage(topic, tag, key, JsonUtils.toJson(body)));
+        sendTransactionMessage(buildMessage(topic, tag, key, JsonUtils.toJson(body)));
     }
 
     public void sendTransactionDelayMessage(Message message, long delayTime, TimeUnit delayTimeUnit) {
         message.setStartDeliverTime(System.currentTimeMillis() + delayTimeUnit.toMinutes(delayTime));
-        transactionMQService.saveTransactionMQMessage(message, RocketMessageTypeEnum.DELAY);
+        sendTransactionMessage(message, RocketMQMessageTypeEnum.DELAY);
     }
 
     public void sendTransactionDelayMessage(String topic, String tag, String body, long delayTime, TimeUnit delayTimeUnit) {
-        transactionMQService.saveTransactionMQMessage(buildMessage(topic, tag, null, body, delayTime, delayTimeUnit), RocketMessageTypeEnum.DELAY);
+        sendTransactionMessage(buildMessage(topic, tag, null, body, delayTime, delayTimeUnit), RocketMQMessageTypeEnum.DELAY);
     }
 
     public <T> void sendTransactionDelayMessage(String topic, String tag, Class<T> body, long delayTime, TimeUnit delayTimeUnit) {
-        transactionMQService.saveTransactionMQMessage(buildMessage(topic, tag, null, JsonUtils.toJson(body), delayTime, delayTimeUnit), RocketMessageTypeEnum.DELAY);
+        sendTransactionMessage(buildMessage(topic, tag, null, JsonUtils.toJson(body), delayTime, delayTimeUnit), RocketMQMessageTypeEnum.DELAY);
     }
 
     public void sendTransactionDelayMessage(String topic, String tag, String key, String body, long delayTime, TimeUnit delayTimeUnit) {
-        transactionMQService.saveTransactionMQMessage(buildMessage(topic, tag, key, body, delayTime, delayTimeUnit), RocketMessageTypeEnum.DELAY);
+        sendTransactionMessage(buildMessage(topic, tag, key, body, delayTime, delayTimeUnit), RocketMQMessageTypeEnum.DELAY);
     }
 
     public <T> void sendTransactionDelayMessage(String topic, String tag, String key, Class<T> body, long delayTime, TimeUnit delayTimeUnit) {
-        transactionMQService.saveTransactionMQMessage(buildMessage(topic, tag, key, JsonUtils.toJson(body), delayTime, delayTimeUnit), RocketMessageTypeEnum.DELAY);
+        sendTransactionMessage(buildMessage(topic, tag, key, JsonUtils.toJson(body), delayTime, delayTimeUnit), RocketMQMessageTypeEnum.DELAY);
     }
 
     public void sendTransactionOrderMessage(Message message, String shardingKey) {
         message.setShardingKey(shardingKey);
-        transactionMQService.saveTransactionMQMessage(message, RocketMessageTypeEnum.ORDER);
+        sendTransactionMessage(message, RocketMQMessageTypeEnum.ORDER);
     }
 
     public void sendTransactionOrderMessage(Message message) {
-        transactionMQService.saveTransactionMQMessage(message, RocketMessageTypeEnum.ORDER);
+        sendTransactionMessage(message, RocketMQMessageTypeEnum.ORDER);
     }
 
     public void sendTransactionOrderMessage(String topic, String tag, String body, String shardingKey) {
-        transactionMQService.saveTransactionMQMessage(buildMessage(topic, tag, null, body, shardingKey), RocketMessageTypeEnum.ORDER);
+        sendTransactionMessage(buildMessage(topic, tag, null, body, shardingKey), RocketMQMessageTypeEnum.ORDER);
     }
 
     public <T> void sendTransactionOrderMessage(String topic, String tag, Class<T> body, String shardingKey) {
-        transactionMQService.saveTransactionMQMessage(buildMessage(topic, tag, null, JsonUtils.toJson(body), shardingKey), RocketMessageTypeEnum.ORDER);
+        sendTransactionMessage(buildMessage(topic, tag, null, JsonUtils.toJson(body), shardingKey), RocketMQMessageTypeEnum.ORDER);
     }
 
     public void sendTransactionOrderMessage(String topic, String tag, String key, String body, String shardingKey) {
-        transactionMQService.saveTransactionMQMessage(buildMessage(topic, tag, key, body, shardingKey), RocketMessageTypeEnum.ORDER);
+        sendTransactionMessage(buildMessage(topic, tag, key, body, shardingKey), RocketMQMessageTypeEnum.ORDER);
     }
 
     public <T> void sendTransactionOrderMessage(String topic, String tag, String key, Class<T> body, String shardingKey) {
-        transactionMQService.saveTransactionMQMessage(buildMessage(topic, tag, key, JsonUtils.toJson(body), shardingKey), RocketMessageTypeEnum.ORDER);
+        sendTransactionMessage(buildMessage(topic, tag, key, JsonUtils.toJson(body), shardingKey), RocketMQMessageTypeEnum.ORDER);
     }
 
 
@@ -219,11 +238,15 @@ public class RocketMQProducer {
     }
 
     public void sendOneway(Message message) {
-        producerBean.sendOneway(message);
+        CatTransactionManager.newTransaction(() -> {
+            producerBean.sendOneway(message);
+        }, RocketMQConstant.MQ_CAT_TYPE, RocketMQConstant.SEND_ONEWAY_MESSAGE);
     }
 
     public void sendAsync(Message message, SendCallback sendCallback) {
-        producerBean.sendAsync(message, sendCallback);
+        CatTransactionManager.newTransaction(() -> {
+            producerBean.sendAsync(message, sendCallback);
+        }, RocketMQConstant.MQ_CAT_TYPE, RocketMQConstant.SEND_ASYNC_MESSAGE);
     }
 
 }

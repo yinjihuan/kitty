@@ -7,6 +7,7 @@ import com.aliyun.openservices.ons.api.Message;
 import com.aliyun.openservices.ons.api.SendResult;
 import com.aliyun.openservices.shade.com.alibaba.fastjson.JSONObject;
 import com.aliyun.openservices.shade.org.apache.commons.lang3.StringUtils;
+import com.cxytiandi.kitty.common.cat.CatTransactionManager;
 import com.cxytiandi.kitty.lock.DistributedLock;
 import lombok.extern.slf4j.Slf4j;
 
@@ -50,6 +51,12 @@ public class ProcessMessageTask {
 	
 	private void process() {
 		List<TransactionMessage> messages = transactionMQService.listWatingSendMessage(100);
+		CatTransactionManager.newTransaction(() -> {
+			doProcess(messages);
+		}, RocketMQConstant.MQ_CAT_TYPE, RocketMQConstant.DISPATCH);
+	}
+
+	private void doProcess(List<TransactionMessage> messages) {
 		messages.parallelStream().forEach(message -> {
 			SendResult sendResult = null;
 			try {
@@ -71,15 +78,15 @@ public class ProcessMessageTask {
 	private SendResult sendMessage(TransactionMessage message) {
 		SendResult sendResult = null;
 		Message msg = JSONObject.parseObject(message.getMessage(), Message.class);
-		if (RocketMessageTypeEnum.NORMAL.getType().equals(message.getMessageType())) {
+		if (RocketMQMessageTypeEnum.NORMAL.getType().equals(message.getMessageType())) {
 			sendResult = rocketMQProducer.sendMessage(msg, false);
 		}
 
-		if (RocketMessageTypeEnum.ORDER.getType().equals(message.getMessageType())) {
+		if (RocketMQMessageTypeEnum.ORDER.getType().equals(message.getMessageType())) {
 			sendResult = rocketMQProducer.sendOrderMessage(msg, msg.getShardingKey(),false);
 		}
 
-		if (RocketMessageTypeEnum.DELAY.getType().equals(message.getMessageType())) {
+		if (RocketMQMessageTypeEnum.DELAY.getType().equals(message.getMessageType())) {
 			sendResult = rocketMQProducer.sendMessage(msg, false);
 		}
 
