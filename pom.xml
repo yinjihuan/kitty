@@ -247,4 +247,18 @@
             <url>http://unidal.org/nexus/content/repositories/releases/</url>
         </repository>
     </repositories>
+
+    <build>
+        <plugins>
+            <!-- 统一修改版本 mvn versions:set -DnewVersion=1.1-SNAPSHOT -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>versions-maven-plugin</artifactId>
+                <configuration>
+                    <generateBackupPoms>false</generateBackupPoms>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
 </project>
