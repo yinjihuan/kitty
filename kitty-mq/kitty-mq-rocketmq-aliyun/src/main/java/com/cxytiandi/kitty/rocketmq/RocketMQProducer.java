@@ -45,6 +45,14 @@ public class RocketMQProducer {
         return new SendResult();
     }
 
+    public SendResult sendMessage(Message message, boolean isSaveDb) {
+        if (isSaveDb) {
+            return sendMessage(message);
+        }
+        SendResult result = producerBean.send(message);
+        return result;
+    }
+
     public SendResult sendMessage(String topic, String tag, String body) {
         return sendMessage(buildMessage(topic, tag, null, body));
     }
@@ -90,6 +98,13 @@ public class RocketMQProducer {
             sendTransactionOrderMessage(message, shardingKey);
         }
         return new SendResult();
+    }
+
+    public SendResult sendOrderMessage(Message message, String shardingKey, boolean isSaveDb) {
+        if (isSaveDb) {
+            return sendOrderMessage(message, shardingKey);
+        }
+        return orderProducerBean.send(message, shardingKey);
     }
 
     public SendResult sendOrderMessage(Message message) {

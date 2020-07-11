@@ -49,7 +49,7 @@ public class RocketMqAutoConfiguration {
     @Autowired
     private DistributedLock distributedLock;
 
-    @Bean
+    @Bean(initMethod = "start")
     @ConditionalOnProperty(value = "kitty.rocketmq.aliyun.producer.enabled", matchIfMissing = true)
     public ProducerBean producerBean(RocketMqProperties rocketMqProperties) {
         ProducerBean producerBean = new ProducerBean();
@@ -58,7 +58,7 @@ public class RocketMqAutoConfiguration {
         return producerBean;
     }
 
-    @Bean
+    @Bean(initMethod = "start")
     @ConditionalOnProperty(value = "kitty.rocketmq.aliyun.producer.enabled", matchIfMissing = true)
     public OrderProducerBean orderProducerBean(RocketMqProperties rocketMqProperties) {
         OrderProducerBean producerBean = new OrderProducerBean();

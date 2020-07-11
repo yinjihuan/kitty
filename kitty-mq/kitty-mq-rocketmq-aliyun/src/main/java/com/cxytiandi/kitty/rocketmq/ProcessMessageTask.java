@@ -6,6 +6,7 @@ import java.util.List;
 import com.aliyun.openservices.ons.api.Message;
 import com.aliyun.openservices.ons.api.SendResult;
 import com.aliyun.openservices.shade.com.alibaba.fastjson.JSONObject;
+import com.aliyun.openservices.shade.org.apache.commons.lang3.StringUtils;
 import com.cxytiandi.kitty.lock.DistributedLock;
 import lombok.extern.slf4j.Slf4j;
 
@@ -38,7 +39,7 @@ public class ProcessMessageTask {
 	}
 
 	private void processByLock() {
-		distributedLock.lock("transaction_message", 60, () -> {
+		distributedLock.lock("transaction_message", 1000 * 60, () -> {
 			process();
 			return null;
 		}, () -> {
@@ -56,7 +57,7 @@ public class ProcessMessageTask {
 			} catch (Exception e) {
 				log.error("消息发送失败: {}", message.getId(), e);
 			} finally {
-				if (sendResult != null) {
+				if (sendResult != null && StringUtils.isNotBlank(sendResult.getMessageId())) {
 					message.setMessageId(sendResult.getMessageId());
 					message.setStatus(1);
 				}
@@ -71,15 +72,15 @@ public class ProcessMessageTask {
 		SendResult sendResult = null;
 		Message msg = JSONObject.parseObject(message.getMessage(), Message.class);
 		if (RocketMessageTypeEnum.NORMAL.getType().equals(message.getMessageType())) {
-			sendResult = rocketMQProducer.sendMessage(msg);
+			sendResult = rocketMQProducer.sendMessage(msg, false);
 		}
 
 		if (RocketMessageTypeEnum.ORDER.getType().equals(message.getMessageType())) {
-			sendResult = rocketMQProducer.sendOrderMessage(msg);
+			sendResult = rocketMQProducer.sendOrderMessage(msg, msg.getShardingKey(),false);
 		}
 
 		if (RocketMessageTypeEnum.DELAY.getType().equals(message.getMessageType())) {
-			sendResult = rocketMQProducer.sendMessage(msg);
+			sendResult = rocketMQProducer.sendMessage(msg, false);
 		}
 
 		return sendResult;
