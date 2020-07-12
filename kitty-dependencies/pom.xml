@@ -102,6 +102,11 @@
                 <artifactId>kitty-spring-cloud-starter-rocketmq-aliyun</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <dependency>
+                <groupId>com.cxytiandi</groupId>
+                <artifactId>kitty-spring-cloud-starter-thread-local-cache</artifactId>
+                <version>${project.version}</version>
+            </dependency>
         </dependencies>
 
     </dependencyManagement>

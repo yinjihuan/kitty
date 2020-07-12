@@ -31,6 +31,7 @@
         <module>kitty-spring-cloud-starter-redis</module>
         <module>kitty-spring-cloud-starter-dynamic-thread-pool</module>
         <module>kitty-spring-cloud-starter-rocketmq-aliyun</module>
+        <module>kitty-spring-cloud-starter-thread-local-cache</module>
     </modules>
 
 
