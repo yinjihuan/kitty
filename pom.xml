@@ -21,10 +21,10 @@
         <module>kitty-distributed</module>
         <module>kitty-mq</module>
         <module>kitty-dynamic-thread-pool</module>
+        <module>kitty-thread-local-cache</module>
     </modules>
 
     <properties>
-        <kitty.version>1.0-SNAPSHOT</kitty.version>
         <spring-cloud.version>Greenwich.SR2</spring-cloud.version>
         <spring-cloud-alibaba.version>2.1.0.RELEASE</spring-cloud-alibaba.version>
         <jackson.version>2.10.3</jackson.version>
@@ -72,91 +72,97 @@
             <dependency>
                 <groupId>com.cxytiandi</groupId>
                 <artifactId>kitty-common</artifactId>
-                <version>${kitty.version}</version>
+                <version>${project.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>com.cxytiandi</groupId>
                 <artifactId>kitty-servicecall-dubbo</artifactId>
-                <version>${kitty.version}</version>
+                <version>${project.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>com.cxytiandi</groupId>
                 <artifactId>kitty-servicecall-feign</artifactId>
-                <version>${kitty.version}</version>
+                <version>${project.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>com.cxytiandi</groupId>
                 <artifactId>kitty-gateway-zuul</artifactId>
-                <version>${kitty.version}</version>
+                <version>${project.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>com.cxytiandi</groupId>
                 <artifactId>kitty-db-elasticsearch</artifactId>
-                <version>${kitty.version}</version>
+                <version>${project.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>com.cxytiandi</groupId>
                 <artifactId>kitty-db-redis-jetcache</artifactId>
-                <version>${kitty.version}</version>
+                <version>${project.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>com.cxytiandi</groupId>
                 <artifactId>kitty-db-mongodb-spring</artifactId>
-                <version>${kitty.version}</version>
+                <version>${project.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>com.cxytiandi</groupId>
                 <artifactId>kitty-db-mysql-mybatis</artifactId>
-                <version>${kitty.version}</version>
+                <version>${project.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>com.cxytiandi</groupId>
                 <artifactId>kitty-db-redis-spring</artifactId>
-                <version>${kitty.version}</version>
+                <version>${project.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>com.cxytiandi</groupId>
                 <artifactId>kitty-register-nacos</artifactId>
-                <version>${kitty.version}</version>
+                <version>${project.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>com.cxytiandi</groupId>
                 <artifactId>kitty-config-nacos</artifactId>
-                <version>${kitty.version}</version>
+                <version>${project.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>com.cxytiandi</groupId>
                 <artifactId>kitty-distributed-sentinel</artifactId>
-                <version>${kitty.version}</version>
+                <version>${project.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>com.cxytiandi</groupId>
                 <artifactId>kitty-distributed-lock</artifactId>
-                <version>${kitty.version}</version>
+                <version>${project.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>com.cxytiandi</groupId>
                 <artifactId>kitty-distributed-id</artifactId>
-                <version>${kitty.version}</version>
+                <version>${project.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>com.cxytiandi</groupId>
                 <artifactId>kitty-dynamic-thread-pool</artifactId>
-                <version>${kitty.version}</version>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.cxytiandi</groupId>
+                <artifactId>kitty-thread-local-cache</artifactId>
+                <version>${project.version}</version>
             </dependency>
 
             <dependency>
@@ -247,4 +253,18 @@
             <url>http://unidal.org/nexus/content/repositories/releases/</url>
         </repository>
     </repositories>
+
+    <build>
+        <plugins>
+            <!-- 统一修改版本 mvn versions:set -DnewVersion=1.1-SNAPSHOT -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>versions-maven-plugin</artifactId>
+                <configuration>
+                    <generateBackupPoms>false</generateBackupPoms>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
 </project>

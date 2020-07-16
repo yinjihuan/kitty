@@ -1,6 +1,6 @@
 package com.cxytiandi.kitty.threadpool.listener;
 
-import com.alibaba.nacos.api.annotation.NacosInjected;
+import com.alibaba.cloud.nacos.NacosConfigProperties;
 import com.alibaba.nacos.api.config.ConfigService;
 import com.alibaba.nacos.api.config.listener.AbstractListener;
 import com.alibaba.nacos.api.exception.NacosException;
@@ -8,13 +8,12 @@ import com.cxytiandi.kitty.threadpool.DynamicThreadPoolManager;
 import com.cxytiandi.kitty.threadpool.config.DynamicThreadPoolProperties;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.Assert;
 
 import javax.annotation.PostConstruct;
 
 /**
- * Nacos配置修改监听
+ * Spring Cloud Alibaba Nacos配置修改监听
  *
  * @作者 尹吉欢
  * @个人微信 jihuan900
@@ -24,10 +23,10 @@ import javax.annotation.PostConstruct;
  * @时间 2020-06-18 23:06
  */
 @Slf4j
-public class NacosConfigUpdateListener {
+public class NacosCloudConfigUpdateListener {
 
-    @NacosInjected
-    private ConfigService configService;
+    @Autowired
+    private NacosConfigProperties nacosConfigProperties;
 
     @Autowired
     private DynamicThreadPoolManager dynamicThreadPoolManager;
@@ -35,8 +34,6 @@ public class NacosConfigUpdateListener {
     @Autowired
     private DynamicThreadPoolProperties poolProperties;
 
-    @Value("${spring.cloud.nacos.config.enabled:true}")
-    private Boolean springCloudConfigEnable;
 
     @PostConstruct
     public void init() {
@@ -44,6 +41,7 @@ public class NacosConfigUpdateListener {
     }
 
     public void initConfigUpdateListener() {
+        ConfigService configService = nacosConfigProperties.configServiceInstance();
         Assert.hasText(poolProperties.getNacosDataId(), "请配置kitty.threadpools.nacosDataId");
         Assert.hasText(poolProperties.getNacosGroup(), "请配置kitty.threadpools.nacosGroup");
 

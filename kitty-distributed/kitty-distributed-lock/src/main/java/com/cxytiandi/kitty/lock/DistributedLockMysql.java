@@ -49,7 +49,9 @@ public class DistributedLockMysql implements DistributedLock {
             preparedStatement.setString(1, key);
             preparedStatement.execute();
             conn.commit();
-            return success.get();
+            T result = success.get();
+            deleteLock(key);
+            return result;
         } catch (Exception e) {
            return fail.get();
         } finally {
@@ -74,7 +76,6 @@ public class DistributedLockMysql implements DistributedLock {
                    throw new RuntimeException(e);
                 }
             }
-            deleteLock(key);
         }
 
     }
