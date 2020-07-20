@@ -113,6 +113,7 @@ public class DistributedLockRedis implements DistributedLock {
                 if (distributedLockMysql != null) {
                     distributedLockMysql.lock(key, waitTime, leaseTime, success, fail);
                 }
+                return;
             }
 
             boolean tryLock = false;
@@ -122,11 +123,13 @@ public class DistributedLockRedis implements DistributedLock {
                 // 写入失败，降级为数据库锁
                 if (distributedLockMysql != null) {
                     distributedLockMysql.lock(key, waitTime, leaseTime, success, fail);
+                    return;
                 }
             }
 
             if (!tryLock) {
                 fail.run();
+                return;
             }
 
             try {

@@ -1,7 +1,5 @@
 package com.cxytiandi.kitty.lock.idempotent;
 
-import org.springframework.core.annotation.AliasFor;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -57,5 +55,17 @@ public @interface Idempotent {
      * @return
      */
     TimeUnit timeUnit() default TimeUnit.SECONDS;
+
+    /**
+     * 触发幂等限制时调用同类中的方法进行后续处理
+     * @return
+     */
+    String idempotentHandler() default "";
+
+    /**
+     * 触发幂等限制时调用其他类中的方法进行后续处理
+     * @return
+     */
+    Class<?>[] idempotentHandlerClass() default {};
 
 }
