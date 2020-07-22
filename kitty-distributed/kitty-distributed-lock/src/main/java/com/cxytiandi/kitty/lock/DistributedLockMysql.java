@@ -11,7 +11,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
 /**
- * Mysql 分布式锁
+ * Mysql 分布式锁(后续还是找个开源的吧，自己写要考虑的东西有点多)
  *
  * @作者 尹吉欢
  * @个人微信 jihuan900
