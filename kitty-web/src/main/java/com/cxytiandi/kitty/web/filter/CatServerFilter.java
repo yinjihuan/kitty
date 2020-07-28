@@ -52,7 +52,7 @@ public class CatServerFilter implements Filter {
             Cat.logRemoteCallServer(catContext);
         }
 
-        Transaction filterTransaction = Cat.newTransaction(CatConstants.TYPE_URL, uri);
+        Transaction filterTransaction = Cat.newTransaction(CatConstants.TYPE_URL, request.getMethod() + ":"+uri);
 
         try {
             Cat.logEvent(CatConstantsExt.TYPE_URL_METHOD, request.getMethod(), Message.SUCCESS, request.getRequestURL().toString());
