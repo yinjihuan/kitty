@@ -9,6 +9,8 @@ import com.alibaba.csp.sentinel.adapter.servlet.util.FilterUtil;
 import com.alibaba.csp.sentinel.context.ContextUtil;
 import com.alibaba.csp.sentinel.slots.block.BlockException;
 import com.alibaba.csp.sentinel.util.StringUtil;
+import com.cxytiandi.kitty.common.json.JsonUtils;
+import com.dianping.cat.Cat;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.util.StringUtils;
@@ -22,6 +24,7 @@ import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -59,7 +62,7 @@ public class SentinelCommonFilter implements Filter {
             throws IOException, ServletException {
         HttpServletRequest sRequest = (HttpServletRequest)request;
         Entry urlEntry = null;
-
+        Map catEventData = new HashMap();
         try {
             String target = this.resolveTarget(sRequest);
             // Clean and unify the URL.
@@ -77,6 +80,10 @@ public class SentinelCommonFilter implements Filter {
                 String origin = parseOrigin(sRequest);
                 ContextUtil.enter(WebServletConfig.WEB_SERVLET_CONTEXT_NAME, origin);
 
+                catEventData.put("uri", sRequest.getRequestURI());
+                catEventData.put("resource", target);
+                catEventData.put("origin", origin);
+
                 if (httpMethodSpecify) {
                     // Add HTTP method prefix if necessary.
                     String pathWithHttpMethod = sRequest.getMethod().toUpperCase() + COLON + target;
@@ -85,11 +92,13 @@ public class SentinelCommonFilter implements Filter {
                     urlEntry = SphU.entry(target, ResourceTypeConstants.COMMON_WEB, EntryType.IN);
                 }
             }
+
             chain.doFilter(request, response);
         } catch (BlockException e) {
             HttpServletResponse sResponse = (HttpServletResponse)response;
             // Return the block page, or redirect to another URL.
             WebCallbackManager.getUrlBlockHandler().blocked(sRequest, sResponse, e);
+            Cat.logErrorWithCategory("Sentinel " + e.getClass().getSimpleName(), JsonUtils.toJson(catEventData), e);
         } catch (IOException | ServletException | RuntimeException e2) {
             Tracer.traceEntry(e2, urlEntry);
             throw e2;

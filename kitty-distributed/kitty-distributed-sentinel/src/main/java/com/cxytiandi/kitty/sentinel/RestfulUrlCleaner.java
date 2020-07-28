@@ -21,6 +21,8 @@ public class RestfulUrlCleaner implements UrlCleaner {
 
     private static final String ROOT_PATH = "/";
 
+    private static final String EMPTY_STR = "";
+
     private static final Pattern PATH_VARIABLE = Pattern.compile("\\{(\\w+)\\}");
 
     private PathConfig pathConfig;
@@ -32,7 +34,13 @@ public class RestfulUrlCleaner implements UrlCleaner {
     @Override
     public String clean(String originUrl) {
         if (originUrl.endsWith(".ico")) {
-            return "";
+            return EMPTY_STR;
+        }
+        List<String> ignoreUris = pathConfig.getIgnoreUris();
+        if (!CollectionUtils.isEmpty(ignoreUris)) {
+            if (ignoreUris.contains(originUrl)) {
+                return EMPTY_STR;
+            }
         }
         return originUrl;
     }

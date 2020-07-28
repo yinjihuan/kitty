@@ -5,6 +5,7 @@ import com.cxytiandi.kitty.common.json.JsonUtils;
 import com.dianping.cat.Cat;
 import com.netflix.zuul.context.RequestContext;
 import com.netflix.zuul.exception.ZuulException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.netflix.ribbon.support.RibbonCommandContext;
 import org.springframework.cloud.netflix.ribbon.support.RibbonRequestCustomizer;
 import org.springframework.cloud.netflix.zuul.filters.ProxyRequestHelper;
@@ -28,6 +29,9 @@ import java.util.Map;
  */
 public class KittyRibbonRoutingFilter extends RibbonRoutingFilter {
 
+    @Value("${spring.application.name:unknown}")
+    private String applicationName;
+
     public KittyRibbonRoutingFilter(ProxyRequestHelper helper, RibbonCommandFactory<?> ribbonCommandFactory, List<RibbonRequestCustomizer> requestCustomizers) {
         super(helper, ribbonCommandFactory, requestCustomizers);
     }
@@ -37,6 +41,7 @@ public class KittyRibbonRoutingFilter extends RibbonRoutingFilter {
 
         RequestContext context = RequestContext.getCurrentContext();
         this.helper.addIgnoredHeaders();
+        context.addZuulRequestHeader("service-name", applicationName);
         RibbonCommandContext commandContext = buildCommandContext(context);
         try {
             Map<String, Object> data = new HashMap<>();
