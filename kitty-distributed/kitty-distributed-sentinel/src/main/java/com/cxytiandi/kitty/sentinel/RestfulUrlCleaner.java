@@ -1,6 +1,7 @@
 package com.cxytiandi.kitty.sentinel;
 
 import com.alibaba.csp.sentinel.adapter.servlet.callback.UrlCleaner;
+import com.cxytiandi.kitty.sentinel.properties.PathProperties;
 import org.springframework.util.CollectionUtils;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -25,10 +26,10 @@ public class RestfulUrlCleaner implements UrlCleaner {
 
     private static final Pattern PATH_VARIABLE = Pattern.compile("\\{(\\w+)\\}");
 
-    private PathConfig pathConfig;
+    private PathProperties pathProperties;
 
-    public RestfulUrlCleaner(PathConfig pathConfig) {
-        this.pathConfig = pathConfig;
+    public RestfulUrlCleaner(PathProperties pathProperties) {
+        this.pathProperties = pathProperties;
     }
 
     @Override
@@ -36,7 +37,7 @@ public class RestfulUrlCleaner implements UrlCleaner {
         if (originUrl.endsWith(".ico")) {
             return EMPTY_STR;
         }
-        List<String> ignoreUris = pathConfig.getIgnoreUris();
+        List<String> ignoreUris = pathProperties.getIgnoreUris();
         if (!CollectionUtils.isEmpty(ignoreUris)) {
             if (ignoreUris.contains(originUrl)) {
                 return EMPTY_STR;
@@ -61,9 +62,9 @@ public class RestfulUrlCleaner implements UrlCleaner {
         }
 
         List<String> skipPaths = new ArrayList<>();
-        if (!CollectionUtils.isEmpty(pathConfig.getSkipPaths())) {
+        if (!CollectionUtils.isEmpty(pathProperties.getSkipPaths())) {
             Map<String, List<String>> pathMap = new HashMap<>();
-            pathConfig.getSkipPaths().forEach(s -> {
+            pathProperties.getSkipPaths().forEach(s -> {
                 String[] pathArray = s.split(":");
                 pathMap.put(pathArray[0], Arrays.asList(pathArray[1].split(",")));
             });

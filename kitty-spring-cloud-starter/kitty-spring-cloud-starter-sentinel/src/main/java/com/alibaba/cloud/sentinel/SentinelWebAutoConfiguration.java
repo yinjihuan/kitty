@@ -21,7 +21,7 @@ import com.alibaba.csp.sentinel.adapter.servlet.callback.RequestOriginParser;
 import com.alibaba.csp.sentinel.adapter.servlet.callback.UrlBlockHandler;
 import com.alibaba.csp.sentinel.adapter.servlet.callback.UrlCleaner;
 import com.alibaba.csp.sentinel.adapter.servlet.callback.WebCallbackManager;
-import com.cxytiandi.kitty.sentinel.PathConfig;
+import com.cxytiandi.kitty.sentinel.properties.PathProperties;
 import com.cxytiandi.kitty.sentinel.SentinelCommonFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,7 +71,7 @@ public class SentinelWebAutoConfiguration {
     private DispatcherServlet dispatcherServlet;
 
     @Autowired
-    private PathConfig pathConfig;
+    private PathProperties pathConfig;
 
     @PostConstruct
     public void init() {

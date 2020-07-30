@@ -20,8 +20,10 @@ import com.alibaba.csp.sentinel.EntryType;
 import com.alibaba.csp.sentinel.SphU;
 import com.alibaba.csp.sentinel.annotation.SentinelResource;
 import com.alibaba.csp.sentinel.slots.block.BlockException;
-import com.cxytiandi.kitty.common.cat.CatTransactionManager;
 import com.cxytiandi.kitty.common.json.JsonUtils;
+import com.dianping.cat.Cat;
+import com.dianping.cat.message.Message;
+import com.dianping.cat.message.Transaction;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -62,31 +64,30 @@ public class SentinelResourceAspect extends AbstractSentinelAspectSupport {
         catData.put("blockHandlerClass", JsonUtils.toJson(annotation.blockHandlerClass()));
         catData.put("fallback", annotation.fallback());
         catData.put("fallbackClass", JsonUtils.toJson(annotation.fallbackClass()));
-        return CatTransactionManager.newTransaction(() -> {
-            try {
-                return doInvoke(pjp, annotation, resourceName, entryType, resourceType);
-            } catch (Throwable throwable) {
-                throw new RuntimeException(throwable);
-            }
-        }, "Sentinel", resourceName, catData);
+        Transaction transaction = Cat.newTransaction("Sentinel", resourceName);
+        catData.forEach(transaction::addData);
+        try {
+            Object result = doInvoke(pjp, annotation, resourceName, entryType, resourceType);
+            transaction.setStatus(Message.SUCCESS);
+            return result;
+        } catch (Throwable t) {
+            transaction.setStatus(t);
+            throw t;
+        } finally {
+            transaction.complete();
+        }
     }
 
     private Object doInvoke(ProceedingJoinPoint pjp, SentinelResource annotation, String resourceName, EntryType entryType, int resourceType) throws Throwable {
-
+        Map catEventData = new HashMap();
+        catEventData.put("resource", resourceName);
         Entry entry = null;
         try {
             entry = SphU.entry(resourceName, resourceType, entryType, pjp.getArgs());
             Object result = pjp.proceed();
             return result;
         } catch (BlockException ex) {
-            return CatTransactionManager.newTransaction(() -> {
-                try {
-                    return handleBlockException(pjp, annotation, ex);
-                } catch (Throwable throwable) {
-                    throw new RuntimeException(throwable);
-                }
-            }, "Sentinel", "handleBlockException");
-
+            return handleBlockException(pjp, annotation, ex);
         } catch (Throwable ex) {
             Class<? extends Throwable>[] exceptionsToIgnore = annotation.exceptionsToIgnore();
             // The ignore list will be checked first.
@@ -95,14 +96,7 @@ public class SentinelResourceAspect extends AbstractSentinelAspectSupport {
             }
             if (exceptionBelongsTo(ex, annotation.exceptionsToTrace())) {
                 traceException(ex, annotation);
-                return CatTransactionManager.newTransaction(() -> {
-                    try {
-                        return handleFallback(pjp, annotation, ex);
-                    } catch (Throwable throwable) {
-                        throw new RuntimeException(throwable);
-                    }
-                }, "Sentinel", "handleFallback");
-
+                return handleFallback(pjp, annotation, ex);
             }
 
             // No fallback function can handle the exception, so throw it out.

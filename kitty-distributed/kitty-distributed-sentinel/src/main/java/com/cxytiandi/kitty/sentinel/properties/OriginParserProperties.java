@@ -1,4 +1,4 @@
-package com.cxytiandi.kitty.sentinel;
+package com.cxytiandi.kitty.sentinel.properties;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -15,7 +15,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  */
 @Data
 @ConfigurationProperties(prefix = "sentinel.origin.parser")
-public class OriginParserConfig {
+public class OriginParserProperties {
 
     /**
      * origin解析类型：remoteAddr,remoteHost,header

@@ -1,4 +1,4 @@
-package com.cxytiandi.kitty.sentinel;
+package com.cxytiandi.kitty.sentinel.properties;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -17,7 +17,7 @@ import java.util.List;
  */
 @Data
 @ConfigurationProperties(prefix = "sentinel.path")
-public class PathConfig {
+public class PathProperties {
 
     /**
      * 访问uri中需要跳过的内容

@@ -1,8 +1,10 @@
 package com.cxytiandi.kitty.sentinel.autoconfigure;
 
 import com.alibaba.csp.sentinel.adapter.servlet.callback.WebCallbackManager;
-import com.cxytiandi.kitty.sentinel.OriginParserConfig;
-import com.cxytiandi.kitty.sentinel.PathConfig;
+import com.cxytiandi.kitty.sentinel.ApplicationContextHelper;
+import com.cxytiandi.kitty.sentinel.properties.EarlyWarningProperties;
+import com.cxytiandi.kitty.sentinel.properties.OriginParserProperties;
+import com.cxytiandi.kitty.sentinel.properties.PathProperties;
 import com.cxytiandi.kitty.sentinel.RestfulUrlCleaner;
 import com.cxytiandi.kitty.sentinel.SentinelRequestOriginParser;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,22 +23,27 @@ import javax.annotation.PostConstruct;
  * @时间 2020-07-21 22:07
  */
 @Configuration
-@EnableConfigurationProperties({PathConfig.class, OriginParserConfig.class})
+@EnableConfigurationProperties({PathProperties.class, OriginParserProperties.class, EarlyWarningProperties.class})
 public class KittySentinelAutoConfiguration {
 
     @Autowired
-    private PathConfig pathConfig;
+    private PathProperties pathProperties;
 
     @Autowired
-    private OriginParserConfig originParserConfig;
+    private OriginParserProperties originParserProperties;
 
     @Bean
     public RestfulUrlCleaner restfulUrlCleaner() {
-        return new RestfulUrlCleaner(pathConfig);
+        return new RestfulUrlCleaner(pathProperties);
     }
 
     @PostConstruct
     public void init() {
-        WebCallbackManager.setRequestOriginParser(new SentinelRequestOriginParser(originParserConfig));
+        WebCallbackManager.setRequestOriginParser(new SentinelRequestOriginParser(originParserProperties));
+    }
+
+    @Bean
+    public ApplicationContextHelper applicationContextHelper() {
+        return new ApplicationContextHelper();
     }
 }

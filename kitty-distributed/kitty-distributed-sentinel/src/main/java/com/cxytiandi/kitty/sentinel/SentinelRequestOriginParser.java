@@ -1,6 +1,8 @@
 package com.cxytiandi.kitty.sentinel;
 
 import com.alibaba.csp.sentinel.adapter.servlet.callback.RequestOriginParser;
+import com.cxytiandi.kitty.sentinel.properties.OriginParserProperties;
+
 import javax.servlet.http.HttpServletRequest;
 
 /**
@@ -15,28 +17,28 @@ import javax.servlet.http.HttpServletRequest;
  */
 public class SentinelRequestOriginParser implements RequestOriginParser {
 
-    private OriginParserConfig originParserConfig;
+    private OriginParserProperties originParserProperties;
 
-    public SentinelRequestOriginParser(OriginParserConfig originParserConfig) {
-        this.originParserConfig = originParserConfig;
+    public SentinelRequestOriginParser(OriginParserProperties originParserProperties) {
+        this.originParserProperties = originParserProperties;
     }
 
     @Override
     public String parseOrigin(HttpServletRequest request) {
-        if (originParserConfig == null) {
+        if (originParserProperties == null) {
             return null;
         }
 
-        if ("remoteAddr".equals(originParserConfig.getType())) {
+        if ("remoteAddr".equals(originParserProperties.getType())) {
             return request.getRemoteAddr();
         }
 
-        if ("remoteHost".equals(originParserConfig.getType())) {
+        if ("remoteHost".equals(originParserProperties.getType())) {
             return request.getRemoteHost();
         }
 
-        if ("header".equals(originParserConfig.getType())) {
-            return request.getHeader(originParserConfig.getHeaderName());
+        if ("header".equals(originParserProperties.getType())) {
+            return request.getHeader(originParserProperties.getHeaderName());
         }
 
         return null;
