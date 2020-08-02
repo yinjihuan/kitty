@@ -9,6 +9,7 @@ import com.alibaba.csp.sentinel.slots.block.flow.FlowRuleChecker;
 import com.alibaba.csp.sentinel.slots.block.flow.FlowRuleManager;
 import com.alibaba.csp.sentinel.slots.block.flow.FlowRuleUtil;
 import com.alibaba.csp.sentinel.util.AssertUtil;
+import com.cxytiandi.kitty.sentinel.alarm.SentinelBlockQueue;
 import com.cxytiandi.kitty.sentinel.properties.EarlyWarningProperties;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -100,7 +101,9 @@ public class FlowEarlyWarningSlot extends AbstractLinkedProcessorSlot<DefaultNod
                 if (!checker.canPassCheck(rule, context, node, count, prioritized)) {
                     FlowRule originRule = getOriginRule(resource);
                     String originRuleCount = originRule == null ? "未知" : String.valueOf(originRule.getCount());
-                    log.info("FlowEarlyWarning:服务{}目前的流量指标已经超过{}，接近配置的流控阈值:{}, 请对应负责人及时关注。", resource, rule.getCount(), originRuleCount);
+                    String warnMsg = String.format("FlowEarlyWarning:资源【%s】目前的流量指标已经超过【%s】，接近配置的流控阈值:【%s】, 请对应负责人及时关注。", resource, rule.getCount(), originRuleCount);
+                    log.warn(warnMsg);
+                    SentinelBlockQueue.add(warnMsg);
                     break;
                 }
             }

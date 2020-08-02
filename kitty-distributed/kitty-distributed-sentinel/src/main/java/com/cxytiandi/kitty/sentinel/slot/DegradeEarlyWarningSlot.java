@@ -6,15 +6,14 @@ import com.alibaba.csp.sentinel.slotchain.AbstractLinkedProcessorSlot;
 import com.alibaba.csp.sentinel.slotchain.ResourceWrapper;
 import com.alibaba.csp.sentinel.slots.block.degrade.DegradeRule;
 import com.alibaba.csp.sentinel.slots.block.degrade.DegradeRuleManager;
+import com.cxytiandi.kitty.sentinel.alarm.SentinelBlockQueue;
 import com.cxytiandi.kitty.sentinel.properties.EarlyWarningProperties;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -50,15 +49,13 @@ public class DegradeEarlyWarningSlot extends AbstractLinkedProcessorSlot<Default
         List<DegradeRule> rules = getRuleProvider(resource);
         if (rules != null) {
             for (DegradeRule rule : rules) {
-                try {
-                    if (!rule.passCheck(context, node, count)) {
-                        DegradeRule originRule = getOriginRule(resource);
-                        String originRuleCount = originRule == null ? "未知" : String.valueOf(originRule.getCount());
-                        log.info("DegradeEarlyWarning:服务{}目前的熔断指标已经超过{}，接近配置的熔断阈值:{}, 请对应负责人及时关注。", resource, rule.getCount(), originRuleCount);
-                        break;
-                    }
-                } catch (Exception e) {
-
+                if (!rule.passCheck(context, node, count)) {
+                    DegradeRule originRule = getOriginRule(resource);
+                    String originRuleCount = originRule == null ? "未知" : String.valueOf(originRule.getCount());
+                    String warnMsg = String.format("DegradeEarlyWarning:资源【%s】目前的熔断指标已经超过【%s】，接近配置的熔断阈值:【%s】, 请对应负责人及时关注。", resource, rule.getCount(), originRuleCount);
+                    log.warn(warnMsg);
+                    SentinelBlockQueue.add(warnMsg);
+                    break;
                 }
             }
         }
