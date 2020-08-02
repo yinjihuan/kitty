@@ -57,4 +57,23 @@ public class DistributedIdempotentImpl implements DistributedIdempotent {
     public <T> T execute(IdempotentRequest request, Supplier<T> execute, Supplier<T> fail) {
         return execute(request.getKey(), request.getLockExpireTime(), request.getFirstLevelExpireTime(), request.getSecondLevelExpireTime(), request.getTimeUnit(), execute, fail);
     }
+
+    @Override
+    public void execute(String key, int lockExpireTime, int firstLevelExpireTime, int secondLevelExpireTime, TimeUnit timeUnit, Runnable execute, Runnable fail) {
+        // todo: 二级存储待实现
+        distributedLock.lock(key + lockSuffix, lockExpireTime, timeUnit, () -> {
+            RBucket<String> bucket = redissonClient.getBucket(key);
+            if (bucket != null && bucket.get() != null) {
+                fail.run();
+            } else {
+                execute.run();
+                bucket.set(idempotentDefaultValue, firstLevelExpireTime, timeUnit);
+            }
+        }, fail);
+    }
+
+    @Override
+    public void execute(IdempotentRequest request, Runnable execute, Runnable fail) {
+        execute(request.getKey(), request.getLockExpireTime(), request.getFirstLevelExpireTime(), request.getSecondLevelExpireTime(), request.getTimeUnit(), execute, fail);
+    }
 }

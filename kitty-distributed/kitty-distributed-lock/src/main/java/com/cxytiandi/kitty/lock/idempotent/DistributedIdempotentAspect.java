@@ -15,7 +15,7 @@ import org.springframework.util.StringUtils;
 import java.lang.reflect.Method;
 
 @Aspect
-public class DistributedIdempotentAspect {
+public class DistributedIdempotentAspect extends AbstractIdempotentAspectSupport {
 
     private DistributedIdempotent distributedIdempotent;
 
@@ -48,15 +48,19 @@ public class DistributedIdempotentAspect {
                 .lockExpireTime(idempotent.lockExpireTime())
                 .build();
 
-        return distributedIdempotent.execute(request, () -> {
-           try {
-               return joinpoint.proceed();
-           } catch (Throwable e) {
-               throw new RuntimeException(e);
-           }
-        }, () -> {
-            throw new IdempotentException("重复请求");
-        });
+        try {
+            return distributedIdempotent.execute(request, () -> {
+                try {
+                    return joinpoint.proceed();
+                } catch (Throwable e) {
+                    throw new RuntimeException(e);
+                }
+            }, () -> {
+                throw new IdempotentException("重复请求");
+            });
+        } catch (IdempotentException ex) {
+            return handleIdempotentException(joinpoint, idempotent, ex);
+        }
     }
 
     /**
