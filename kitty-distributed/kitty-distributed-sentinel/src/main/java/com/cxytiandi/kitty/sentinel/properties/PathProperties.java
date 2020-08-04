@@ -20,7 +20,7 @@ import java.util.List;
 public class PathProperties {
 
     /**
-     * 访问uri中需要跳过的内容
+     * 访问uri中需要跳过的内容, 跳过的字段多个用,分隔，比如id,name
      * 格式：sentinel.path.skipPaths[0]=/tt/test/{id}:id
      * 效果：访问uri为/tt/test/1 会被格式化为 /tt/test/{id}
      */

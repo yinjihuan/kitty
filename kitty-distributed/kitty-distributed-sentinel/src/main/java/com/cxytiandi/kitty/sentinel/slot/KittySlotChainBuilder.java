@@ -3,6 +3,7 @@ package com.cxytiandi.kitty.sentinel.slot;
 import com.alibaba.csp.sentinel.slotchain.ProcessorSlotChain;
 import com.alibaba.csp.sentinel.slotchain.SlotChainBuilder;
 import com.alibaba.csp.sentinel.slots.DefaultSlotChainBuilder;
+import com.alibaba.csp.sentinel.slots.block.flow.param.ParamFlowSlot;
 import com.cxytiandi.kitty.sentinel.ApplicationContextHelper;
 import com.cxytiandi.kitty.sentinel.properties.EarlyWarningProperties;
 
@@ -20,6 +21,7 @@ public class KittySlotChainBuilder implements SlotChainBuilder {
     public ProcessorSlotChain build() {
         EarlyWarningProperties warningProperties = ApplicationContextHelper.getBean(EarlyWarningProperties.class);
         ProcessorSlotChain chain = new DefaultSlotChainBuilder().build();
+        chain.addLast(new ParamFlowSlot());
         chain.addLast(new FlowEarlyWarningSlot(warningProperties));
         chain.addLast(new DegradeEarlyWarningSlot(warningProperties));
         return chain;

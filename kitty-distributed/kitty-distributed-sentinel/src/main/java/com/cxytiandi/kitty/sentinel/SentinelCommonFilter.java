@@ -10,6 +10,7 @@ import com.alibaba.csp.sentinel.context.ContextUtil;
 import com.alibaba.csp.sentinel.slots.block.BlockException;
 import com.alibaba.csp.sentinel.util.StringUtil;
 import com.cxytiandi.kitty.common.json.JsonUtils;
+import com.cxytiandi.kitty.sentinel.properties.HotParamterProperties;
 import com.dianping.cat.Cat;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.annotation.AnnotatedElementUtils;
@@ -24,9 +25,10 @@ import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * 自定义Sentinel的CommonFilter
@@ -47,9 +49,11 @@ public class SentinelCommonFilter implements Filter {
     private boolean httpMethodSpecify = false;
     private Map<HandlerMethod,String> handlerMethodUrlMap = new ConcurrentHashMap<>(32);
     private DispatcherServlet dispatcherServlet;
+    private HotParamterProperties hotParamterProperties;
 
-    public SentinelCommonFilter(DispatcherServlet dispatcherServlet) {
+    public SentinelCommonFilter(DispatcherServlet dispatcherServlet, HotParamterProperties hotParamterProperties) {
         this.dispatcherServlet = dispatcherServlet;
+        this.hotParamterProperties = hotParamterProperties;
     }
 
     @Override
@@ -84,12 +88,13 @@ public class SentinelCommonFilter implements Filter {
                 catEventData.put("resource", target);
                 catEventData.put("origin", origin);
 
+                Object[] params = getSphUParams(sRequest, target);
                 if (httpMethodSpecify) {
                     // Add HTTP method prefix if necessary.
                     String pathWithHttpMethod = sRequest.getMethod().toUpperCase() + COLON + target;
-                    urlEntry = SphU.entry(pathWithHttpMethod, ResourceTypeConstants.COMMON_WEB, EntryType.IN);
+                    urlEntry = SphU.entry(pathWithHttpMethod, ResourceTypeConstants.COMMON_WEB, EntryType.IN, params);
                 } else {
-                    urlEntry = SphU.entry(target, ResourceTypeConstants.COMMON_WEB, EntryType.IN);
+                    urlEntry = SphU.entry(target, ResourceTypeConstants.COMMON_WEB, EntryType.IN, params);
                 }
             }
 
@@ -108,6 +113,66 @@ public class SentinelCommonFilter implements Filter {
             }
             ContextUtil.exit();
         }
+    }
+
+    private Object[] getSphUParams(HttpServletRequest sRequest, String resource) {
+        List<Object> args = new ArrayList<>();
+
+        Map<String, Map<String, String>> paramtersMap = hotParamterProperties.getParamtersMap();
+        Optional<String> anyKey = paramtersMap.keySet().stream().filter(k -> k.equals(resource)).findAny();
+        if (!anyKey.isPresent()) {
+            return new Object[0];
+        }
+
+        Map<String, String> modelMap = paramtersMap.get(anyKey.get());
+        if (modelMap.containsKey("params")) {
+            String modelValue = modelMap.get("params");
+            String parameter = sRequest.getParameter(modelValue);
+            args.add(parameter);
+        }
+
+        if (modelMap.containsKey("header")) {
+            String modelValue = modelMap.get("header");
+            String parameter = sRequest.getHeader(modelValue);
+            args.add(parameter);
+        }
+
+        if (modelMap.containsKey("path")) {
+            String modelValue = modelMap.get("path");
+            args.addAll(getPathValues(sRequest.getRequestURI(), modelValue));
+        }
+
+        Object[] params = args.toArray(new Object[args.size()]);
+        return params;
+    }
+
+    private static final Pattern PATH_VARIABLE = Pattern.compile("\\{(\\w+)\\}");
+
+    private List<Object> getPathValues(String originUrl, String pattern) {
+        List<Object> args = new ArrayList<>();
+
+        if (originUrl.startsWith(ROOT_PATH)) {
+            originUrl = originUrl.substring(1);
+        }
+
+        if (pattern.startsWith(ROOT_PATH)) {
+            pattern = pattern.substring(1);
+        }
+
+        String[] original = originUrl.split(ROOT_PATH);
+        String[] patternArray = pattern.split(ROOT_PATH);
+        if (original.length != patternArray.length) {
+            return new ArrayList<>();
+        }
+
+        Matcher matcher;
+        for (int i = 0; i < patternArray.length; i++) {
+            matcher = PATH_VARIABLE.matcher(patternArray[i]);
+            if (matcher.matches()) {
+                args.add(original[i]);
+            }
+        }
+        return args;
     }
 
     private String parseOrigin(HttpServletRequest request) {
