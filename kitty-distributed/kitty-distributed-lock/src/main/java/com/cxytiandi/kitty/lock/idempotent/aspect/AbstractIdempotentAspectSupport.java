@@ -1,5 +1,6 @@
-package com.cxytiandi.kitty.lock.idempotent;
+package com.cxytiandi.kitty.lock.idempotent.aspect;
 
+import com.cxytiandi.kitty.lock.idempotent.exception.IdempotentException;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.reflect.MethodSignature;

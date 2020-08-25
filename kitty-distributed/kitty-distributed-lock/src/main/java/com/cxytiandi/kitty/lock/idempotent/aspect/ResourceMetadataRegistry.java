@@ -1,5 +1,6 @@
-package com.cxytiandi.kitty.lock.idempotent;
+package com.cxytiandi.kitty.lock.idempotent.aspect;
 
+import com.cxytiandi.kitty.lock.idempotent.aspect.MethodWrapper;
 import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Method;

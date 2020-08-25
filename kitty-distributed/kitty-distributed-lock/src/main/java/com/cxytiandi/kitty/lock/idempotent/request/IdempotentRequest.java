@@ -1,5 +1,6 @@
-package com.cxytiandi.kitty.lock.idempotent;
+package com.cxytiandi.kitty.lock.idempotent.request;
 
+import com.cxytiandi.kitty.lock.idempotent.enums.ReadWriteTypeEnum;
 import lombok.Builder;
 import lombok.Data;
 
@@ -41,5 +42,10 @@ public class IdempotentRequest {
      * 存储时间单位
      */
     private TimeUnit timeUnit;
+
+    /**
+     * 读写类型
+     */
+    private ReadWriteTypeEnum readWriteType;
 
 }

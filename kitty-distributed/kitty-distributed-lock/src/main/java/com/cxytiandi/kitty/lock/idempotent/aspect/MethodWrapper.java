@@ -1,4 +1,4 @@
-package com.cxytiandi.kitty.lock.idempotent;
+package com.cxytiandi.kitty.lock.idempotent.aspect;
 
 import java.lang.reflect.Method;
 

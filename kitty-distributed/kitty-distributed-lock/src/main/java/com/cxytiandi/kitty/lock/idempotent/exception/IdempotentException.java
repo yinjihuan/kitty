@@ -1,4 +1,4 @@
-package com.cxytiandi.kitty.lock.idempotent;
+package com.cxytiandi.kitty.lock.idempotent.exception;
 
 /**
  * @作者 尹吉欢

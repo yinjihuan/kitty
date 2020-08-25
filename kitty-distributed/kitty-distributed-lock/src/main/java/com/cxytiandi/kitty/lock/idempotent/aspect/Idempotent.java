@@ -1,4 +1,6 @@
-package com.cxytiandi.kitty.lock.idempotent;
+package com.cxytiandi.kitty.lock.idempotent.aspect;
+
+import com.cxytiandi.kitty.lock.idempotent.enums.ReadWriteTypeEnum;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -42,7 +44,15 @@ public @interface Idempotent {
      * 二级存储过期时间
      * @return
      */
-    int secondLevelExpireTime() default 600;
+    int secondLevelExpireTime() default 0;
+
+    /**
+     * 读写类型
+     * ORDER：顺序读写，先读一级缓存，没有再都二级缓存，先写一级缓存，再写二级缓存
+     * PARALLEL：并行读写，同时读一级和二级缓存，取返回最快的并且有值的结果，同时写一级和二级缓存
+     * @return
+     */
+    ReadWriteTypeEnum readWriteType() default ReadWriteTypeEnum.ORDER;
 
     /**
      * 锁的过期时间
