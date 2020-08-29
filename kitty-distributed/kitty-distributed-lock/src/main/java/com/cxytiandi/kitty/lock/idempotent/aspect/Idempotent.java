@@ -44,7 +44,7 @@ public @interface Idempotent {
      * 二级存储过期时间
      * @return
      */
-    int secondLevelExpireTime() default 0;
+    int secondLevelExpireTime() default 60 * 60 * 24 * 365;
 
     /**
      * 读写类型
@@ -52,7 +52,7 @@ public @interface Idempotent {
      * PARALLEL：并行读写，同时读一级和二级缓存，取返回最快的并且有值的结果，同时写一级和二级缓存
      * @return
      */
-    ReadWriteTypeEnum readWriteType() default ReadWriteTypeEnum.ORDER;
+    ReadWriteTypeEnum readWriteType() default ReadWriteTypeEnum.PARALLEL;
 
     /**
      * 锁的过期时间

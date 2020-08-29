@@ -11,4 +11,13 @@ CREATE TABLE `transaction_message` (
   `send_time` datetime DEFAULT NULL COMMENT '最近发送消息时间',
   `add_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='本地事务消息';
+
+CREATE TABLE `idempotent_record` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `key` varchar(50) NULL DEFAULT '',
+  `value` varchar(50) NOT NULL DEFAULT '',
+  `expireTime` timestamp NOT NULL COMMENT '过期时间',
+  `addTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='幂等记录';
