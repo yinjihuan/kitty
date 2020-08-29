@@ -21,11 +21,13 @@ import com.alibaba.csp.sentinel.adapter.servlet.callback.RequestOriginParser;
 import com.alibaba.csp.sentinel.adapter.servlet.callback.UrlBlockHandler;
 import com.alibaba.csp.sentinel.adapter.servlet.callback.UrlCleaner;
 import com.alibaba.csp.sentinel.adapter.servlet.callback.WebCallbackManager;
+import com.cxytiandi.kitty.sentinel.properties.HotParamterProperties;
 import com.cxytiandi.kitty.sentinel.properties.PathProperties;
 import com.cxytiandi.kitty.sentinel.SentinelCommonFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
@@ -49,7 +51,7 @@ import java.util.Optional;
 @ConditionalOnWebApplication(type = Type.SERVLET)
 @ConditionalOnClass(CommonFilter.class)
 @ConditionalOnProperty(name = "spring.cloud.sentinel.enabled", matchIfMissing = true)
-@EnableConfigurationProperties(SentinelProperties.class)
+@EnableConfigurationProperties({SentinelProperties.class, HotParamterProperties.class})
 public class SentinelWebAutoConfiguration {
 
     private static final Logger log = LoggerFactory
@@ -71,7 +73,7 @@ public class SentinelWebAutoConfiguration {
     private DispatcherServlet dispatcherServlet;
 
     @Autowired
-    private PathProperties pathConfig;
+    private HotParamterProperties hotParamterProperties;
 
     @PostConstruct
     public void init() {
@@ -95,7 +97,7 @@ public class SentinelWebAutoConfiguration {
         }
 
         registration.addUrlPatterns(filterConfig.getUrlPatterns().toArray(new String[0]));
-        Filter filter = new SentinelCommonFilter(dispatcherServlet);
+        Filter filter = new SentinelCommonFilter(dispatcherServlet, hotParamterProperties);
         registration.setFilter(filter);
         registration.setOrder(filterConfig.getOrder());
         registration.addInitParameter("HTTP_METHOD_SPECIFY",

@@ -1,13 +1,18 @@
 package com.alicp.jetcache.embedded;
 
 import com.alicp.jetcache.CacheConstant;
+import com.alicp.jetcache.CacheMonitor;
 import com.alicp.jetcache.CacheValueHolder;
+import com.alicp.jetcache.support.DefaultCacheMonitor;
 import com.cxytiandi.kitty.common.cat.CatTransactionManager;
 import com.dianping.cat.Cat;
 import com.dianping.cat.message.Message;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.Expiry;
+import org.springframework.util.CollectionUtils;
+
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -85,7 +90,7 @@ public class CaffeineCache<K, V> extends AbstractEmbeddedCache<K, V> {
                 try {
                     return CatTransactionManager.newTransaction(() -> {
                         return cache.getIfPresent(key);
-                    }, CacheConstant.CACHE_GET, "Caffeine_" + key.toString(),null);
+                    }, CacheConstant.CACHE_GET, "Caffeine_" + getCacheName() + key.toString(),null);
                 } catch (Exception e){
                     Cat.logError(e);
                     throw new RuntimeException(e);
@@ -97,7 +102,7 @@ public class CaffeineCache<K, V> extends AbstractEmbeddedCache<K, V> {
                 try {
                     return CatTransactionManager.newTransaction(() -> {
                         return cache.getAllPresent(keys);
-                    }, CacheConstant.CACHE_GET, "Caffeine_" + keys.stream().map(k -> k.toString()).collect(Collectors.joining(",")),null);
+                    }, CacheConstant.CACHE_GET, "Caffeine_" + keys.stream().map(k -> getCacheName() + k.toString()).collect(Collectors.joining(",")),null);
                 } catch (Exception e){
                     Cat.logError(e);
                     throw new RuntimeException(e);
@@ -111,7 +116,7 @@ public class CaffeineCache<K, V> extends AbstractEmbeddedCache<K, V> {
                     CatTransactionManager.newTransaction(() -> {
                         cache.put(key, value);
                         return null;
-                    }, CacheConstant.CACHE_PUT, "Caffeine_" + key.toString(), null);
+                    }, CacheConstant.CACHE_PUT, "Caffeine_" + getCacheName() + key.toString(), null);
                 } catch (Exception e){
                     Cat.logError(e);
                     throw new RuntimeException(e);
@@ -128,7 +133,7 @@ public class CaffeineCache<K, V> extends AbstractEmbeddedCache<K, V> {
                 try {
                     return CatTransactionManager.newTransaction(() -> {
                         return cache.asMap().remove(key) != null;
-                    }, CacheConstant.CACHE_REMOVE, "Caffeine_" + key.toString(), null);
+                    }, CacheConstant.CACHE_REMOVE, "Caffeine_" + getCacheName() + key.toString(), null);
                 } catch (Exception e){
                     Cat.logError(e);
                     throw new RuntimeException(e);
@@ -141,7 +146,7 @@ public class CaffeineCache<K, V> extends AbstractEmbeddedCache<K, V> {
                     CatTransactionManager.newTransaction(() -> {
                         cache.invalidateAll(keys);
                         return null;
-                    }, CacheConstant.CACHE_REMOVE, "Caffeine_" + keys.stream().map(k -> k.toString()).collect(Collectors.joining(",")), null);
+                    }, CacheConstant.CACHE_REMOVE, "Caffeine_" + keys.stream().map(k ->  getCacheName() + k.toString()).collect(Collectors.joining(",")), null);
                 } catch (Exception e){
                     Cat.logError(e);
                     throw new RuntimeException(e);
@@ -154,7 +159,7 @@ public class CaffeineCache<K, V> extends AbstractEmbeddedCache<K, V> {
                 try {
                     return CatTransactionManager.newTransaction(() -> {
                         return cache.asMap().putIfAbsent(key, value) == null;
-                    }, CacheConstant.CACHE_PUT_IF_ABSENT, "Caffeine_" + key.toString(), null);
+                    }, CacheConstant.CACHE_PUT_IF_ABSENT, "Caffeine_" + getCacheName() + key.toString(), null);
                 } catch (Exception e){
                     Cat.logError(e);
                     throw new RuntimeException(e);
@@ -162,5 +167,17 @@ public class CaffeineCache<K, V> extends AbstractEmbeddedCache<K, V> {
 
             }
         };
+
+
+    }
+
+    private String getCacheName() {
+        List<CacheMonitor> monitors = config.getMonitors();
+        if (CollectionUtils.isEmpty(monitors)) {
+            return "";
+        }
+        DefaultCacheMonitor cacheMonitor = (DefaultCacheMonitor) monitors.get(0);
+        String cacheName = cacheMonitor.getCacheName();
+        return cacheName;
     }
 }

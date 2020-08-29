@@ -3,7 +3,6 @@ package com.cxytiandi.kitty.sentinel.autoconfigure;
 import com.alibaba.csp.sentinel.adapter.servlet.callback.WebCallbackManager;
 import com.cxytiandi.kitty.sentinel.ApplicationContextHelper;
 import com.cxytiandi.kitty.sentinel.alarm.SentinelBlockAlarm;
-import com.cxytiandi.kitty.sentinel.alarm.SentinelBlockAlarmProperties;
 import com.cxytiandi.kitty.sentinel.properties.EarlyWarningProperties;
 import com.cxytiandi.kitty.sentinel.properties.OriginParserProperties;
 import com.cxytiandi.kitty.sentinel.properties.PathProperties;
@@ -25,7 +24,7 @@ import javax.annotation.PostConstruct;
  * @时间 2020-07-21 22:07
  */
 @Configuration
-@EnableConfigurationProperties({PathProperties.class, OriginParserProperties.class, EarlyWarningProperties.class, SentinelBlockAlarmProperties.class})
+@EnableConfigurationProperties({PathProperties.class, OriginParserProperties.class, EarlyWarningProperties.class})
 public class KittySentinelAutoConfiguration {
 
     @Autowired

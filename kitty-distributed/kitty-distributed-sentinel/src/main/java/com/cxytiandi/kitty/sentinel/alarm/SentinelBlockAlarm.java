@@ -3,6 +3,7 @@ package com.cxytiandi.kitty.sentinel.alarm;
 import com.cxytiandi.kitty.common.alarm.AlarmManager;
 import com.cxytiandi.kitty.common.alarm.AlarmMessage;
 import com.cxytiandi.kitty.common.alarm.AlarmTypeEnum;
+import com.cxytiandi.kitty.sentinel.properties.EarlyWarningProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.StringUtils;
@@ -28,7 +29,7 @@ public class SentinelBlockAlarm {
     private String applicationName;
 
     @Autowired
-    private SentinelBlockAlarmProperties sentinelBlockAlarmProperties;
+    private EarlyWarningProperties earlyWarningProperties;
 
     @PostConstruct
     public void init() {
@@ -44,18 +45,18 @@ public class SentinelBlockAlarm {
 
     private void sendAlarmMessage(String msg) {
         // 没有配置告警信息
-        if (!StringUtils.hasText(sentinelBlockAlarmProperties.getAlarmApiUrl()) && !StringUtils.hasText(sentinelBlockAlarmProperties.getAccessToken())) {
+        if (!StringUtils.hasText(earlyWarningProperties.getAlarmApiUrl()) && !StringUtils.hasText(earlyWarningProperties.getAccessToken())) {
             return;
         }
 
         AlarmMessage alarmMessage = AlarmMessage.builder()
                 .alarmName("SentinelBlockEarlyAlarm")
                 .alarmType(getAlarmType())
-                .apiUrl(sentinelBlockAlarmProperties.getAlarmApiUrl())
-                .message(getAlarmMessage(msg, sentinelBlockAlarmProperties))
-                .accessToken(sentinelBlockAlarmProperties.getAccessToken())
-                .secret(sentinelBlockAlarmProperties.getSecret())
-                .alarmTimeInterval(sentinelBlockAlarmProperties.getAlarmTimeInterval())
+                .apiUrl(earlyWarningProperties.getAlarmApiUrl())
+                .message(getAlarmMessage(msg, earlyWarningProperties))
+                .accessToken(earlyWarningProperties.getAccessToken())
+                .secret(earlyWarningProperties.getSecret())
+                .alarmTimeInterval(earlyWarningProperties.getAlarmTimeInterval())
                 .build();
 
         AlarmManager.sendAlarmMessage(alarmMessage);
@@ -63,7 +64,7 @@ public class SentinelBlockAlarm {
     }
 
 
-    private String getAlarmMessage(String reason, SentinelBlockAlarmProperties prop) {
+    private String getAlarmMessage(String reason, EarlyWarningProperties prop) {
         StringBuilder content = new StringBuilder();
         content.append("告警应用:").append(applicationName).append("\n");
         content.append("告警原因:").append(reason).append("\n");
@@ -74,7 +75,7 @@ public class SentinelBlockAlarm {
 
 
     private AlarmTypeEnum getAlarmType() {
-        return StringUtils.hasText(sentinelBlockAlarmProperties.getAlarmApiUrl()) ? AlarmTypeEnum.EXTERNAL_SYSTEM : AlarmTypeEnum.DING_TALK;
+        return StringUtils.hasText(earlyWarningProperties.getAlarmApiUrl()) ? AlarmTypeEnum.EXTERNAL_SYSTEM : AlarmTypeEnum.DING_TALK;
     }
 
 }

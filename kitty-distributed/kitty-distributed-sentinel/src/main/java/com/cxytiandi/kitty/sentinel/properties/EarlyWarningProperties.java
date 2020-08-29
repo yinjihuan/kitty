@@ -27,6 +27,32 @@ public class EarlyWarningProperties {
      */
     private List<String> proportions;
 
+    /**
+     * 异常告警API地址，如果配置了此值就将异常信息告诉配置的API,异常告警由外部系统处理
+     * 默认会通过钉钉告警，需要配置钉钉信息
+     */
+    private String alarmApiUrl;
+
+    /**
+     * 钉钉机器人access_token
+     */
+    private String accessToken;
+
+    /**
+     * 钉钉机器人secret
+     */
+    private String secret;
+
+    /**
+     * 告警时间间隔，单位分钟
+     */
+    private int alarmTimeInterval = 1;
+
+    /**
+     * 负责人
+     */
+    private String owner;
+
     public Map<String, Double> getProportionMap() {
         HashMap<String, Double> map = new HashMap<>();
 

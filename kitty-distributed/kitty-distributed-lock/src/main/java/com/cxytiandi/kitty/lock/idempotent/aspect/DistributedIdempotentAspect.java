@@ -1,6 +1,9 @@
-package com.cxytiandi.kitty.lock.idempotent;
+package com.cxytiandi.kitty.lock.idempotent.aspect;
 
 import com.cxytiandi.kitty.common.context.ContextHolder;
+import com.cxytiandi.kitty.lock.idempotent.DistributedIdempotent;
+import com.cxytiandi.kitty.lock.idempotent.request.IdempotentRequest;
+import com.cxytiandi.kitty.lock.idempotent.exception.IdempotentException;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -46,6 +49,7 @@ public class DistributedIdempotentAspect extends AbstractIdempotentAspectSupport
                 .secondLevelExpireTime(idempotent.secondLevelExpireTime())
                 .timeUnit(idempotent.timeUnit())
                 .lockExpireTime(idempotent.lockExpireTime())
+                .readWriteType(idempotent.readWriteType())
                 .build();
 
         try {

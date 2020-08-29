@@ -8,5 +8,7 @@ public class CacheConstant {
     public static final String CACHE_REMOVE = "CacheRemove";
     public static final String CACHE = "Cache";
     public static final String CAFFEINE_EXPIRE_EVENT = "CaffeineCacheExpire";
+    public static final String REDIS_PREFIX = "Redis_";
+    public static final String CAFFEINE_PREFIX = "Caffeine_";
 
 }

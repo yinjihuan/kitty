@@ -109,7 +109,7 @@ public class RedisCache<K, V> extends AbstractExternalCache<K, V> {
 
         try (Jedis jedis = getReadPool().getResource()) {
             byte[] newKey = buildKey(key);
-            String name = "Redis_" + new String(newKey);
+            String name = CacheConstant.REDIS_PREFIX + new String(newKey);
 
             return CatTransactionManager.newTransaction(() -> {
                 byte[] bytes = jedis.get(newKey);
@@ -139,7 +139,7 @@ public class RedisCache<K, V> extends AbstractExternalCache<K, V> {
             ArrayList<K> keyList = new ArrayList<K>(keys);
             byte[][] newKeys = keyList.stream().map((k) -> buildKey(k)).toArray(byte[][]::new);
 
-            String name = "Redis_" + new String(keyList.stream().map((k) -> new String(buildKey(k))).collect(Collectors.joining(",")));
+            String name = CacheConstant.REDIS_PREFIX + new String(keyList.stream().map((k) -> new String(buildKey(k))).collect(Collectors.joining(",")));
 
             return CatTransactionManager.newTransaction(() -> {
                 Map<K, CacheGetResult<V>> resultMap = new HashMap<>();
@@ -179,7 +179,7 @@ public class RedisCache<K, V> extends AbstractExternalCache<K, V> {
         try (Jedis jedis = config.getJedisPool().getResource()) {
             CacheValueHolder<V> holder = new CacheValueHolder(value, timeUnit.toMillis(expireAfterWrite));
             byte[] newKey = buildKey(key);
-            String name = "Redis_" + new String(newKey);
+            String name = CacheConstant.REDIS_PREFIX + new String(newKey);
 
             return CatTransactionManager.newTransaction(() -> {
                 String rt = jedis.psetex(newKey, timeUnit.toMillis(expireAfterWrite), valueEncoder.apply(holder));
@@ -201,7 +201,7 @@ public class RedisCache<K, V> extends AbstractExternalCache<K, V> {
         if (map == null) {
             return CacheResult.FAIL_ILLEGAL_ARGUMENT;
         }
-        String name = "Redis_" + new String(map.entrySet().stream().map(e -> new String(buildKey(e.getKey()))).collect(Collectors.joining(",")));
+        String name = CacheConstant.REDIS_PREFIX + new String(map.entrySet().stream().map(e -> new String(buildKey(e.getKey()))).collect(Collectors.joining(",")));
         try (Jedis jedis = config.getJedisPool().getResource()) {
             return CatTransactionManager.newTransaction(() -> {
                 int failCount = 0;
@@ -238,7 +238,7 @@ public class RedisCache<K, V> extends AbstractExternalCache<K, V> {
     }
 
     private CacheResult REMOVE_impl(Object key, byte[] newKey) {
-        String name = "Redis_" + new String(newKey);
+        String name = CacheConstant.REDIS_PREFIX + new String(newKey);
         try (Jedis jedis = config.getJedisPool().getResource()) {
             return CatTransactionManager.newTransaction(() -> {
                 Long rt = jedis.del(newKey);
@@ -263,7 +263,7 @@ public class RedisCache<K, V> extends AbstractExternalCache<K, V> {
         if (keys == null) {
             return CacheResult.FAIL_ILLEGAL_ARGUMENT;
         }
-        String name = "Redis_" + new String(keys.stream().map(e -> new String(buildKey(e))).collect(Collectors.joining(",")));
+        String name = CacheConstant.REDIS_PREFIX + new String(keys.stream().map(e -> new String(buildKey(e))).collect(Collectors.joining(",")));
         try (Jedis jedis = config.getJedisPool().getResource()) {
             return CatTransactionManager.newTransaction(() -> {
                 byte[][] newKeys = keys.stream().map((k) -> buildKey(k)).toArray((len) -> new byte[keys.size()][]);
@@ -287,7 +287,7 @@ public class RedisCache<K, V> extends AbstractExternalCache<K, V> {
             CacheValueHolder<V> holder = new CacheValueHolder(value, timeUnit.toMillis(expireAfterWrite));
             byte[] newKey = buildKey(key);
 
-            String name = "Redis_" + new String(newKey);
+            String name = CacheConstant.REDIS_PREFIX + new String(newKey);
             return CatTransactionManager.newTransaction(() -> {
                 String rt = jedis.set(newKey, valueEncoder.apply(holder), "NX".getBytes(), "PX".getBytes(), timeUnit.toMillis(expireAfterWrite));
                 if ("OK".equals(rt)) {
