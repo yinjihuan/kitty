@@ -1,4 +1,4 @@
-package com.cxytiandi.kitty.rocketmq;
+package com.cxytiandi.kitty.rocketmq.constant;
 
 /**
  * @作者 尹吉欢
@@ -8,9 +8,9 @@ package com.cxytiandi.kitty.rocketmq;
  * @作者介绍 http://cxytiandi.com/about
  * @时间 2020-07-11 21:23
  */
-public class RocketMQConstant {
+public class RocketMqConstant {
 
-    public static final String MQ_CAT_TYPE = "RocketMQ";
+    public static final String MQ_CAT_TYPE = "RocketMq";
     public static final String SEND_MESSAGE = "SendMessage";
     public static final String SEND_ORDER_MESSAGE = "SendOrderMessage";
     public static final String SEND_TRANSACTION_MESSAGE = "SendTransactionMessage";

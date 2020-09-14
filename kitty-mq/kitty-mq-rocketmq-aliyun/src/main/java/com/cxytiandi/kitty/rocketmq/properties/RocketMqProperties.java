@@ -1,4 +1,4 @@
-package com.cxytiandi.kitty.rocketmq.autoconfigure;
+package com.cxytiandi.kitty.rocketmq.properties;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -27,6 +27,10 @@ public class RocketMqProperties {
      * 分组ID
      */
     private String groupId;
+
+    private String instanceId;
+
+    private String regionId;
 
     /**
      * 集群订阅方式: CLUSTERING 广播订阅方式: BROADCASTING

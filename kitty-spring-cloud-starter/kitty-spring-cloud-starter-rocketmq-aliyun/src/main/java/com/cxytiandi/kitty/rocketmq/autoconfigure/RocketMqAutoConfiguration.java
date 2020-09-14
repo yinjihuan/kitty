@@ -6,11 +6,16 @@ import com.aliyun.openservices.ons.api.bean.*;
 import com.aliyun.openservices.ons.api.order.MessageOrderListener;
 import com.aliyun.openservices.shade.com.google.common.collect.Maps;
 import com.cxytiandi.kitty.lock.DistributedLock;
-import com.cxytiandi.kitty.rocketmq.ProcessMessageTask;
-import com.cxytiandi.kitty.rocketmq.RocketMQMessageListener;
-import com.cxytiandi.kitty.rocketmq.RocketMQProducer;
-import com.cxytiandi.kitty.rocketmq.TransactionMQService;
+import com.cxytiandi.kitty.lock.autoconfigure.DistributedLockAutoConfiguration;
+import com.cxytiandi.kitty.rocketmq.*;
+import com.cxytiandi.kitty.rocketmq.properties.MessageWarningProperties;
+import com.cxytiandi.kitty.rocketmq.properties.RocketMqProperties;
+import com.cxytiandi.kitty.rocketmq.service.OnsTraceService;
+import com.cxytiandi.kitty.rocketmq.service.TransactionMqService;
+import com.cxytiandi.kitty.rocketmq.task.MessageCheckTask;
+import com.cxytiandi.kitty.rocketmq.task.ProcessMessageTask;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
@@ -33,8 +38,9 @@ import java.util.Properties;
  * @作者介绍 http://cxytiandi.com/about
  * @时间 2020-06-07 15:44
  */
-@ImportAutoConfiguration(RocketMqProperties.class)
 @Configuration
+@AutoConfigureAfter({DistributedLockAutoConfiguration.class})
+@ImportAutoConfiguration({RocketMqProperties.class, MessageWarningProperties.class})
 public class RocketMqAutoConfiguration {
 
     @Autowired(required = false)
@@ -68,14 +74,14 @@ public class RocketMqAutoConfiguration {
     }
 
     @Bean
-    public TransactionMQService transactionMQService() {
-        return new TransactionMQService(new JdbcTemplate(dataSource));
+    public TransactionMqService transactionMQService() {
+        return new TransactionMqService(new JdbcTemplate(dataSource));
     }
 
     @Bean
-    public RocketMQProducer rocketMqProducer(ProducerBean producerBean, OrderProducerBean orderProducerBean,
-                                             TransactionMQService transactionMQService) {
-        return new RocketMQProducer(producerBean, orderProducerBean, transactionMQService);
+    public RocketMqProducer rocketMqProducer(ProducerBean producerBean, OrderProducerBean orderProducerBean,
+                                             TransactionMqService transactionMQService) {
+        return new RocketMqProducer(producerBean, orderProducerBean, transactionMQService);
     }
 
     @Bean(initMethod = "start", destroyMethod = "shutdown")
@@ -107,20 +113,15 @@ public class RocketMqAutoConfiguration {
     private Map getSubscriptionTable(List listeners) {
         Map map = Maps.newHashMap();
         listeners.forEach(subscriber -> {
-            if (subscriber.getClass().isAnnotationPresent(RocketMQMessageListener.class)) {
-                RocketMQMessageListener listener = subscriber.getClass().getAnnotation(RocketMQMessageListener.class);
+            if (subscriber.getClass().isAnnotationPresent(RocketMqMessageListener.class)) {
+                RocketMqMessageListener listener = subscriber.getClass().getAnnotation(RocketMqMessageListener.class);
                 map.put(getSubscription(listener), subscriber);
             }
         });
         return map;
     }
 
-    @Bean
-    public ProcessMessageTask processMessageTask(TransactionMQService transactionMQService, RocketMQProducer rocketMQProducer) {
-        return new ProcessMessageTask(transactionMQService, rocketMQProducer, distributedLock);
-    }
-
-    private Subscription getSubscription(RocketMQMessageListener listener) {
+    private Subscription getSubscription(RocketMqMessageListener listener) {
         Subscription subscription = new Subscription();
         subscription.setTopic(listener.topic());
         subscription.setExpression(listener.tag());
@@ -146,6 +147,24 @@ public class RocketMqAutoConfiguration {
         }
 
         return properties;
+    }
+
+    @ConditionalOnProperty(value = "kitty.rocketmq.aliyun.autosend.enabled", matchIfMissing = true)
+    @Bean(initMethod = "start")
+    public ProcessMessageTask processMessageTask() {
+        return new ProcessMessageTask(distributedLock);
+    }
+
+    @ConditionalOnProperty(value = "kitty.rocketmq.aliyun.msgcheck.enabled", matchIfMissing = true)
+    @Bean
+    public OnsTraceService onsTraceService(RocketMqProperties rocketMqProperties) {
+        return new OnsTraceService(rocketMqProperties);
+    }
+
+    @ConditionalOnProperty(value = "kitty.rocketmq.aliyun.msgcheck.enabled", matchIfMissing = true)
+    @Bean(initMethod = "start")
+    public MessageCheckTask messageCheckTask() {
+        return new MessageCheckTask(distributedLock);
     }
 
 }
