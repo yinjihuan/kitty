@@ -62,7 +62,7 @@ Spring Cloud &amp; Spring Cloud Alibaba 基础框架，内置了 Cat 监控，�
 
 ## 使用案例
 
-组件使用案例：https://github.com/yinjihuan/kitty-samples
+组件使用案例：https://github.com/yinjihuan/kittysamples
 
 完整的使用案例可以参考Kitty Cloud这个项目，地址：https://github.com/yinjihuan/kitty-cloud
 
