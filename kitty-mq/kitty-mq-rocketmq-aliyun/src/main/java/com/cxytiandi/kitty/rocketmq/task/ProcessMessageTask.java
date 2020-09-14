@@ -1,4 +1,4 @@
-package com.cxytiandi.kitty.rocketmq;
+package com.cxytiandi.kitty.rocketmq.task;
 
 import java.util.Date;
 import java.util.List;
@@ -9,22 +9,30 @@ import com.aliyun.openservices.shade.com.alibaba.fastjson.JSONObject;
 import com.aliyun.openservices.shade.org.apache.commons.lang3.StringUtils;
 import com.cxytiandi.kitty.common.cat.CatTransactionManager;
 import com.cxytiandi.kitty.lock.DistributedLock;
+import com.cxytiandi.kitty.rocketmq.*;
+import com.cxytiandi.kitty.rocketmq.constant.RocketMqConstant;
+import com.cxytiandi.kitty.rocketmq.enums.RocketMqMessageTypeEnum;
+import com.cxytiandi.kitty.rocketmq.service.TransactionMqService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 
+/**
+ * 消息发送简单处理，加锁
+ * 可以单独出去，用专门的任务调度框架调度
+ */
 @Slf4j
 public class ProcessMessageTask {
 
-	private TransactionMQService transactionMQService;
+    @Autowired
+	private TransactionMqService transactionMqService;
 
-	private RocketMQProducer rocketMQProducer;
+    @Autowired
+	private RocketMqProducer rocketMqProducer;
 
 	private DistributedLock distributedLock;
 
-	public ProcessMessageTask(TransactionMQService transactionMQService, RocketMQProducer rocketMQProducer, DistributedLock distributedLock) {
-		this.transactionMQService = transactionMQService;
-		this.rocketMQProducer = rocketMQProducer;
+	public ProcessMessageTask(DistributedLock distributedLock) {
 		this.distributedLock = distributedLock;
-		start();
 	}
 
 	public void start() {
@@ -50,10 +58,10 @@ public class ProcessMessageTask {
 	}
 	
 	private void process() {
-		List<TransactionMessage> messages = transactionMQService.listWatingSendMessage(100);
+		List<TransactionMessage> messages = transactionMqService.listWatingSendMessage(100);
 		CatTransactionManager.newTransaction(() -> {
 			doProcess(messages);
-		}, RocketMQConstant.MQ_CAT_TYPE, RocketMQConstant.DISPATCH);
+		}, RocketMqConstant.MQ_CAT_TYPE, RocketMqConstant.DISPATCH);
 	}
 
 	private void doProcess(List<TransactionMessage> messages) {
@@ -70,7 +78,7 @@ public class ProcessMessageTask {
 				}
 				message.setSendTime(new Date());
 				message.setSendCount(message.getSendCount() + 1);
-				transactionMQService.updateMessage(message);
+				transactionMqService.updateMessage(message);
 			}
 		});
 	}
@@ -78,16 +86,16 @@ public class ProcessMessageTask {
 	private SendResult sendMessage(TransactionMessage message) {
 		SendResult sendResult = null;
 		Message msg = JSONObject.parseObject(message.getMessage(), Message.class);
-		if (RocketMQMessageTypeEnum.NORMAL.getType().equals(message.getMessageType())) {
-			sendResult = rocketMQProducer.sendMessage(msg, false);
+		if (RocketMqMessageTypeEnum.NORMAL.getType().equals(message.getMessageType())) {
+			sendResult = rocketMqProducer.sendMessage(msg, false);
 		}
 
-		if (RocketMQMessageTypeEnum.ORDER.getType().equals(message.getMessageType())) {
-			sendResult = rocketMQProducer.sendOrderMessage(msg, msg.getShardingKey(),false);
+		if (RocketMqMessageTypeEnum.ORDER.getType().equals(message.getMessageType())) {
+			sendResult = rocketMqProducer.sendOrderMessage(msg, msg.getShardingKey(),false);
 		}
 
-		if (RocketMQMessageTypeEnum.DELAY.getType().equals(message.getMessageType())) {
-			sendResult = rocketMQProducer.sendMessage(msg, false);
+		if (RocketMqMessageTypeEnum.DELAY.getType().equals(message.getMessageType())) {
+			sendResult = rocketMqProducer.sendMessage(msg, false);
 		}
 
 		return sendResult;

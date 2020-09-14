@@ -1,5 +1,6 @@
 package com.cxytiandi.kitty.rocketmq;
 
+import com.cxytiandi.kitty.rocketmq.enums.RocketMqMessageTypeEnum;
 import lombok.Data;
 
 import java.util.Date;
@@ -16,6 +17,21 @@ import java.util.Date;
  */
 @Data
 public class TransactionMessage {
+
+    /**
+     * 等待发送
+     */
+    public static final int WAIT_SEND = 0;
+
+    /**
+     * 等待消费
+     */
+    public static final int WAIT_CONSUME = 1;
+
+    /**
+     * 已消费
+     */
+    public static final int CONSOMED = 2;
 
     private Long id;
 
@@ -35,7 +51,7 @@ public class TransactionMessage {
 
     /**
      * 消息类型
-     * @see RocketMQMessageTypeEnum
+     * @see RocketMqMessageTypeEnum
      */
     private String messageType;
 
@@ -64,5 +80,23 @@ public class TransactionMessage {
      */
     private Date addTime;
 
+    /**
+     * 更新时间
+     */
+    private Date updateTime;
 
+    /**
+     * 消费失败次数
+     */
+    private int consumeFailCount;
+
+    /**
+     * 备注
+     */
+    private String remarks;
+
+    /**
+     * 消息轨迹
+     */
+    private String traces;
 }
