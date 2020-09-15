@@ -7,7 +7,9 @@ import com.dianping.cat.Cat;
 import com.dianping.cat.CatConstants;
 import com.dianping.cat.message.Message;
 import com.dianping.cat.message.Transaction;
+import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.web.util.ContentCachingRequestWrapper;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
@@ -39,8 +41,8 @@ public class CatServerFilter implements Filter {
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
-
         HttpServletRequest request = (HttpServletRequest) servletRequest;
+        ContentCachingRequestWrapper wrapperRequest = new ContentCachingRequestWrapper(request);
         String uri = request.getRequestURI();
 
         // 构建远程消息树
@@ -58,17 +60,24 @@ public class CatServerFilter implements Filter {
             Cat.logEvent(CatConstantsExt.TYPE_URL_METHOD, request.getMethod(), Message.SUCCESS, request.getRequestURL().toString());
             Cat.logEvent(CatConstantsExt.TYPE_URL_CLIENT, request.getRemoteHost() + "【" + applicationName + "】");
 
-            filterChain.doFilter(servletRequest, servletResponse);
+            filterChain.doFilter(wrapperRequest, servletResponse);
             filterTransaction.setSuccessStatus();
         } catch (Exception e) {
             filterTransaction.setStatus(e);
-            Cat.logError(e);
+            Cat.logError("请求体：" + getRequestBody(wrapperRequest), e);
             throw e;
         } finally {
             filterTransaction.complete();
         }
     }
+    private String getRequestBody(ContentCachingRequestWrapper req) {
+        try {
+            return IOUtils.toString(req.getContentAsByteArray(), "UTF-8");
+        } catch (IOException e) {
 
+        }
+        return "";
+    }
     @Override
     public void destroy() {
 
