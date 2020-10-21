@@ -40,6 +40,7 @@
         <xxl-job.version>2.1.2</xxl-job.version>
         <rocketmq.version>2.1.0</rocketmq.version>
         <redisson.version>3.11.2</redisson.version>
+        <sharding-sphere.version>4.1.1</sharding-sphere.version>
     </properties>
 
     <parent>
@@ -166,6 +167,12 @@
             </dependency>
 
             <dependency>
+                <groupId>com.cxytiandi</groupId>
+                <artifactId>kitty-db-sharding-jdbc</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
                 <groupId>io.github.openfeign</groupId>
                 <artifactId>feign-okhttp</artifactId>
                 <version>${feign-okhttp.version}</version>
@@ -241,6 +248,20 @@
                 <groupId>org.redisson</groupId>
                 <artifactId>redisson-spring-boot-starter</artifactId>
                 <version>${redisson.version}</version>
+            </dependency>
+
+            <!-- for spring boot -->
+            <dependency>
+                <groupId>org.apache.shardingsphere</groupId>
+                <artifactId>sharding-jdbc-spring-boot-starter</artifactId>
+                <version>${sharding-sphere.version}</version>
+            </dependency>
+
+            <!-- for spring namespace -->
+            <dependency>
+                <groupId>org.apache.shardingsphere</groupId>
+                <artifactId>sharding-jdbc-spring-namespace</artifactId>
+                <version>${sharding-sphere.version}</version>
             </dependency>
         </dependencies>
 

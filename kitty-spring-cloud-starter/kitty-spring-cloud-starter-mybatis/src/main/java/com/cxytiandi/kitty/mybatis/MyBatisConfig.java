@@ -22,7 +22,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class MyBatisConfig {
 
-    @Value("${spring.datasource.url}")
+    @Value("${spring.datasource.url:}")
     private String datasourceUrl;
 
     @Bean
