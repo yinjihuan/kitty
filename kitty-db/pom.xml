@@ -17,6 +17,7 @@
         <module>kitty-db-mongodb-spring</module>
         <module>kitty-db-elasticsearch</module>
         <module>kitty-db-redis-spring</module>
+        <module>kitty-db-sharding-jdbc</module>
     </modules>
 
     <dependencies>
