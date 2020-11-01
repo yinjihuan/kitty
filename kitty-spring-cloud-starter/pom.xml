@@ -33,6 +33,7 @@
         <module>kitty-spring-cloud-starter-rocketmq-aliyun</module>
         <module>kitty-spring-cloud-starter-thread-local-cache</module>
         <module>kitty-spring-cloud-starter-sharding-jdbc</module>
+        <module>kitty-spring-cloud-starter-async-tool</module>
     </modules>
 
 

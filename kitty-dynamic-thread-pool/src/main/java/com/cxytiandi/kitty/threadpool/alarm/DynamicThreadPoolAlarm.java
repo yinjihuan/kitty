@@ -125,14 +125,14 @@ public class DynamicThreadPoolAlarm {
     }
 
     private String getQueueCapacityThresholdMessage(ThreadPoolProperties prop, int taskCount) {
-        return getALarmMessage("线程池出现任务堆积情况,队列容量:" + prop.getQueueCapacity() + ",等待执行任务数量:" + taskCount , prop);
+        return getAlarmMessage("线程池出现任务堆积情况,队列容量:" + prop.getQueueCapacity() + ",等待执行任务数量:" + taskCount , prop);
     }
 
     private String getRejectCountMessage(long rejectCount, ThreadPoolProperties prop) {
-        return getALarmMessage("线程池中出现RejectedExecutionException异常" + rejectCount + "次", prop);
+        return getAlarmMessage("线程池中出现RejectedExecutionException异常" + rejectCount + "次", prop);
     }
 
-    private String getALarmMessage(String reason, ThreadPoolProperties prop) {
+    private String getAlarmMessage(String reason, ThreadPoolProperties prop) {
         StringBuilder content = new StringBuilder();
         content.append("告警应用:").append(applicationName).append("\n");
         content.append("线程池名称:").append(prop.getThreadPoolName()).append("\n");

@@ -22,6 +22,7 @@
         <module>kitty-mq</module>
         <module>kitty-dynamic-thread-pool</module>
         <module>kitty-thread-local-cache</module>
+        <module>kitty-async-tool</module>
     </modules>
 
     <properties>
@@ -169,6 +170,12 @@
             <dependency>
                 <groupId>com.cxytiandi</groupId>
                 <artifactId>kitty-db-sharding-jdbc</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.cxytiandi</groupId>
+                <artifactId>kitty-async-tool</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
