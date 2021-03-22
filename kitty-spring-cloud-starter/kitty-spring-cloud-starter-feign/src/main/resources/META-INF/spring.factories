@@ -1,2 +1,3 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-com.cxytiandi.kitty.feign.RequestInterceptorAutoConfiguration
+com.cxytiandi.kitty.feign.RequestInterceptorAutoConfiguration,\
+com.cxytiandi.kitty.servicecall.feign.FeignBeanPostProcessorConfiguration
