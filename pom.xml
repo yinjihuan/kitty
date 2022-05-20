@@ -34,7 +34,7 @@
         <jetcache.version>2.5.14</jetcache.version>
         <feign-okhttp.version>9.7.0</feign-okhttp.version>
         <cat.version>3.0.0</cat.version>
-        <gson.version>2.8.2</gson.version>
+        <gson.version>2.8.9</gson.version>
         <brave-dubbo.version>5.10.1</brave-dubbo.version>
         <mybatis-plus.version>3.2.0</mybatis-plus.version>
         <sentinel-dubbo.version>1.6.3</sentinel-dubbo.version>
