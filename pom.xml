@@ -28,7 +28,7 @@
     <properties>
         <spring-cloud.version>Greenwich.SR2</spring-cloud.version>
         <spring-cloud-alibaba.version>2.1.0.RELEASE</spring-cloud-alibaba.version>
-        <jackson.version>2.10.3</jackson.version>
+        <jackson.version>2.12.6.1</jackson.version>
         <elasticsearch.version>6.8.7</elasticsearch.version>
         <lombok.version>1.18.8</lombok.version>
         <jetcache.version>2.5.14</jetcache.version>
