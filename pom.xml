@@ -38,7 +38,7 @@
         <brave-dubbo.version>5.10.1</brave-dubbo.version>
         <mybatis-plus.version>3.2.0</mybatis-plus.version>
         <sentinel-dubbo.version>1.6.3</sentinel-dubbo.version>
-        <xxl-job.version>2.1.2</xxl-job.version>
+        <xxl-job.version>2.3.1</xxl-job.version>
         <rocketmq.version>2.1.0</rocketmq.version>
         <redisson.version>3.11.2</redisson.version>
         <sharding-sphere.version>4.1.1</sharding-sphere.version>
